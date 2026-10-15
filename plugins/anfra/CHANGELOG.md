@@ -1,3 +1,17 @@
+## [0.4.0](https://github.com/holistics/anfra-skills/compare/anfra-v0.3.1...anfra-v0.4.0) (2026-10-15)
+
+### Features
+
+* describe the plugin system and give each built-in plugin its own reference ([821877a](https://github.com/holistics/anfra-skills/commit/821877a75366857f4f93cc2fe70cbfac45e2a31d))
+* improve lineage skill ([c82484e](https://github.com/holistics/anfra-skills/commit/c82484e80b50f9c790585c034e2c3b227dc3b5ba))
+* improve skills ([0b0c5f8](https://github.com/holistics/anfra-skills/commit/0b0c5f81838dda1e32704c77305d53d7cd05dfd1))
+* teach Anfra.plugins in place of Anfra.features ([9ed6e18](https://github.com/holistics/anfra-skills/commit/9ed6e180ddc3c5de5ada2f6a164da4e11c4f2cad))
+
+### Bug Fixes
+
+* fix merge ([9d750d0](https://github.com/holistics/anfra-skills/commit/9d750d0812b8055739277fcd1fbb2da929f6904f))
+* remove unused ([4e53a3a](https://github.com/holistics/anfra-skills/commit/4e53a3ab071c0884f67018208a7dc3bd55802f79))
+
 ## [0.3.1](https://github.com/holistics/anfra-skills/compare/anfra-v0.3.0...anfra-v0.3.1) (2026-10-13)
 
 ### Features
