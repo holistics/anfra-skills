@@ -99,7 +99,7 @@ reader picks a field or clicks a chart), and how the diagram is drawn (see
 ## Look and feel
 
 An app must look finished without the user asking: native controls, default buttons and unstyled
-text are not acceptable. [references/page-design.md](references/page-design.md) and
+text are not acceptable, in an app you review as much as in one you build. [references/page-design.md](references/page-design.md) and
 [references/copy.md](references/copy.md) are the baseline for every look; how far the page may
 depart from them depends on the look the user chose. Their floors (page-design.md, section 11) hold
 in every look.
@@ -309,27 +309,29 @@ that the agreed result still holds.
 ## Review an app's design
 
 When the user asks to review, critique, audit or polish an app (theirs, a demo, or one you built
-earlier), follow [references/design-review.md](references/design-review.md) with
-[references/page-design.md](references/page-design.md) and [references/copy.md](references/copy.md) as
-the rules.
+earlier), follow [references/design-review.md](references/design-review.md), with
+[references/page-design.md](references/page-design.md) and [references/copy.md](references/copy.md)
+as the rules. A review holds the app to the bar a build meets: the page it hands back looks like
+one these steps would write today, in the look the user chose, the default anfra look unless they
+named another. The app's own palette, fonts and controls are what is under review, never the look
+to keep: an app written before these rules passes many single checks and still looks unfinished.
 
-1. Find the file in `apps/` (the user may name it by its `<title>`, its URL or a handle), read it
-   whole, and note which look it is in. In the default look every check is a finding. In their
-   own or a creative look the floors, the story and the unslop pass are findings; other
-   departures from the baseline are choices, which you may offer as suggestions.
-2. Walk the checklist against the code first, then the unslop pass
-   ([references/unslop.md](references/unslop.md)), which every look gets: a generated look is
-   never a style. Then ask before opening a browser or taking screenshots (design-review.md,
-   section 1); without a yes, finish from the code and say which checks only a look could settle.
-3. Report the findings table, most severe first, each pointing at a part by its handle. When the
-   request asks to fix, polish or clean up, go straight on to step 4 and fix every Blocking and
-   Should finding and every slop tell. When it only asks for a review, change nothing yet: the
-   user picks what to fix.
-4. Fix, the smallest change each, without changing what any number means. A
-   finding that needs a different query (a comparison the page lacks, a lead it can't compute)
-   goes back through build steps 2 and 3 for that query (agree on it, then write and check it).
-5. Walk the checks the fixes touched again, from the code and, if the user allowed it, in the
-   browser, and hand over as step 6 says.
+1. Find the file in `apps/` (the user may name it by its `<title>`, its URL or a handle) and read
+   it whole.
+2. Set the look, then write the inventory, the component map and the target page
+   (design-review.md, sections 1 to 3). The map and the target are what the fix builds toward.
+3. Walk the checks against the code, with the unslop pass
+   ([references/unslop.md](references/unslop.md)) in every look. Ask before opening a browser or
+   taking screenshots (section 4); without a yes, finish from the code and say which checks only
+   a look could settle.
+4. Report: the look and the verdict, the story, the target layout, the map's lines that differ,
+   then the findings table. When the request only asks for a review, stop here: the user picks
+   what to fix. When it asks to fix, polish or clean up, go on.
+5. Fix every finding, Nits included, in section 7's order: tokens, components, layout, charts,
+   copy, the unslop pass. Keep every query, SDK call and feature; a finding that needs a different
+   query goes back through build steps 2 and 3.
+6. Check section 7's "done when" list against the file, walk the checks the fixes touched again,
+   and hand over as step 6 says, with the before and after story.
 
 ## Related skills
 * [](../aml/) — add the fields and metrics an app needs.
