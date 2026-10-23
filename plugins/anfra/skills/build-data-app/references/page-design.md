@@ -69,11 +69,20 @@ Top to bottom, in this order. Leave a part out when the plan has nothing for it;
   ```
 - **No more than 4 KPI tiles.** A fifth tile means the plan has no lead; move the extras into a
   table. Four is what a reader compares at a glance, and equal tiles in a long row have no top.
+- **Tiles in one row share one width** (the spans in the table below). The lead is first, never
+  wider: one wide tile beside narrow ones, or the lead alone on a full-width row, reads as a broken
+  grid rather than as emphasis. A lead that needs more room than a tile is a hero, and a hero has
+  its row to itself. An app that already has 5 or more tiles keeps them in a review (cutting tiles
+  needs the user's yes): 6 tiles span 2 each; 5 take their own row track,
+  `repeat(5, minmax(0, 1fr))`, with a comment saying why. Never one stretched tile with bare paper
+  beside the row.
 - **KPI tile:** label (14px, weight 500, weak ink), value (20px, weight 600, ink, `nowrap`), then
   the change: a pill holding an arrow and the signed change, followed by its comparison in muted
   12px text, "[↑ +6.2%] vs last year". The pill's tint comes from the measure's polarity: green
   when this direction is good for it, red when bad, gray when neither (a ticket count, a mix
-  share). The arrow and sign carry the direction, so the meaning never rests on color. Pills only
+  share). The arrow and sign carry the direction, so the meaning never rests on color. The figure
+  itself stays ink: a red "2" reads as an error, not as a change, and the pill already says good
+  or bad. Pills only
   in KPI tiles: in tables and chart labels a change stays signed text, because a pill on every
   number marks none of them. No icon, no sparkline unless the trend is the point and no chart
   below shows it.
@@ -379,6 +388,11 @@ page it (`pageSize`) rather than drawing them all.
   field ends in an ellipsis. Never chips that wrap: each takes a line in a narrow field, and
   three picks grow a 32px field past 100px, pushing its whole row out of line. Never make the
   reader open the menu to remove a pick.
+- **Views are tabs; values are segmented.** Views that swap which blocks show (Statement,
+  Forecast, Working capital) are Basecoat `.tabs` (`role="tablist"`, a `role="tabpanel"` per
+  view), above the blocks they swap. A segmented control sets a value every block reads (a period,
+  a grain). A view switch drawn as a segmented control reads as a filter and hides that the page
+  below is replaced.
 - **Periods are presets** (a segmented "3M · 12M · YTD"); add two date inputs only when the user
   asked for arbitrary ranges. With them, a start after the end shows "Start is after end" under
   the pair, and the queries keep the last valid range.

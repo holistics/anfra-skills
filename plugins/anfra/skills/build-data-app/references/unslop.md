@@ -21,6 +21,11 @@ Walk every element (icon, badge, caption, divider, card, line of text) and ask: 
 this is gone? If nothing, delete it. Walk again after the first round: deletions expose each
 other. Never restyle an element you are about to delete.
 
+When the answer is "the reader loses a fact" (a warning, a status, a note on the data), strip the
+decoration and design what carries the fact: a status pill beside one sentence, a caption under
+the figure it qualifies, a row in the table. Removing a tell is half the fix; a bare paragraph
+left where a callout was reads as unfinished, not as polished.
+
 ## 3. Sweep, in this order
 
 Fix each tell where you find it. Color first, because it is the loudest.
@@ -40,7 +45,7 @@ Fix each tell where you find it. Color first, because it is the loudest.
 | Decoration | Blobs, orbs, grain, textures, decorative illustrations | Delete |
 | Decoration | Colored or large drop shadows, glows, stacked depth cues | The shadow tokens, one cue per surface |
 | Decoration | A pill or badge on every number, tinted chips around facts | Pills only for KPI deltas; plain signed text elsewhere |
-| Decoration | Left-border callout stripes, tinted callout boxes | Delete, or plain text in its block |
+| Decoration | Left-border callout stripes, tinted callout boxes | A status pill and one sentence in its block (step 2) |
 | Icons | Emoji as icons, a sparkle on anything "smart" | One icon set, or none |
 | Icons | An icon in front of every label or heading | Icons only where they replace a word |
 | Copy | "Dashboard", "Overview", "Analytics", "Insights" as the title | What the page is about: "Subscription growth" |

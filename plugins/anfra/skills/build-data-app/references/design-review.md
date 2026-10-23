@@ -25,7 +25,11 @@ decide.
 ## 1. Set the look: the user's, never the app's
 
 Settle the look before you read for findings, because it sets what every color, type and
-component check compares against:
+component check compares against. When the user hasn't named it, ask in the review's first
+message, as build step 2 does, together with the browser question (section 4): "Which look:
+the default anfra style (recommended), something creative, or your own design? And can I open the
+app in a headless browser to click through it and take screenshots?" Without an answer (a run
+nobody watches, or "go ahead"), take the recommended answers:
 
 ```
 Did the user name a brand, colors or a reference, or say "keep our look"? ─▶ their own design
@@ -74,13 +78,16 @@ because the reader sees it in the first view.
 | Several picks | The example's one-line chip multi-select, with remove buttons and "+N" |
 | Button | Basecoat `.btn` with `data-variant`: primary only for the page's one action, outline, ghost |
 | Text or number field | Basecoat `.input`, 32px |
-| Panel | `.card` with `data-size="sm"`, its header `h2` at the optical inset |
-| KPI | `.card.kpi`: label, figure, delta pill |
+| Views (page tabs) | Basecoat `.tabs`, in the same place, never a segmented control |
+| Panel of blocks | `.card` with `data-size="sm"`, its header `h2` at the optical inset |
+| Panel of controls (a filter panel, a side panel, a builder) | the card's surface (white, `--shadow-e1`, 14px radius) on a plain element, not `.card`, which clips its dropdowns; in the same place |
+| KPI | `.card.kpi`: label, figure in ink, delta pill; every tile in the row one width |
 | Chart | `chartTheme()` colors, `tooltipStyle()` with a `tooltipHtml()` formatter, `animation: false` |
 | Table | page-design.md, Tables: 36px rows, hairline rules, right-aligned `tabular-nums` |
 | Loading, empty, error | `.status` over the block: skeleton, then message in words |
 | Footer | `.definitions`: a `dl` per measure in the KPI columns, then one basis line |
 | A part the example lacks (a step list, a progress bar, a badge) | Basecoat's component for it if it has one, else built from the tokens: no color, size, radius or shadow that isn't a token |
+| Class names | none of the names Basecoat's script claims (SKILL.md, In every look) on the app's own parts |
 
 Write it for this app, as "Now → Must be" with a count: "Selects: 9 native `<select>` → Basecoat
 `div.select`". The count tells the fix how far the change reaches.
@@ -106,44 +113,79 @@ is a lead, not yet a finding: confirm it in context.
 | `:hover` with `transform` or `box-shadow` on a card that does nothing on click | nothing | 1 |
 | an emoji in the markup or in a label string | nothing, or one icon set | 1 |
 | `outline: none` with no `:focus-visible` rule; a click listener on a `div` or `span`; an icon-only `<button>` without `aria-label` | the one focus ring; `<button type="button">`; `aria-label` | F5 |
-| a control inside a `.card` that isn't that chart's own, in its header; a filter panel above the page | the header row | 11 |
+| a control inside a `.card` that isn't that chart's own, in its header | the same controls, in the same place, on a panel that doesn't clip (component map) | 11 |
+| KPI tiles in one row with different spans, or a lead tile alone on its row | one span for every tile | 7 |
+| a color on a KPI figure (`.kpi-value` or its equivalent) | ink; the pill carries the tone | 18 |
+| a `.drawer`, `.popover`, `.sidebar`, `.accordion`, `.tabs`, `.toast`, `.combobox`, `.command` or `.dropdown-menu` that isn't that Basecoat component's markup | a name of the app's own (`app-drawer`) | F3 |
+| `basecoat.` called from an inline script | nothing: Basecoat wires its components itself | F3 |
 | `100vh`, or `overflow: auto` on the page wrapper | nothing: the frame scrolls | 12 |
 | a `span-N` class or `grid-column: span` on a direct child of the page, outside a `.row` | wrap it in a `.row` | 9 |
 
-## 3. Draw the target page
+## 3. Keep the IA, then draw the target inside it
 
-Write the page plan (page-design.md, section 1) for this app as if you were building it today from
-its content, then its target layout, one line per row, each block with its span and form, each
-control with its place and component:
+A polish changes how the page looks, never how it is organized. Readers already know where
+things are: a moved panel or a view switch turned into a header control makes them learn the page
+again, and it breaks the wiring of every control it touches. So before the target, write the app's
+information architecture (IA) as it is, one line each, and treat every line as fixed:
+
+- **Regions:** header, filter row or panel, side panel, main, detail, footer, and where each sits.
+- **Navigation:** each tab set, view switch or stepper, its kind and its place. Tabs stay tabs, in
+  the same place.
+- **Panels and what they drive:** a control panel stays beside the results it changes, on the
+  same side (a planner's inputs left of its results stay left of them).
+- **Order:** the blocks in each region, top to bottom.
+
+Structural changes (moving a region, changing a navigation's kind, merging, splitting or dropping
+a block, cutting KPI tiles) go in the report as suggestions that need the user's yes. They never
+go into the fix.
+
+Then draw the target inside that IA, region by region: spans on the 12-column grid, KPI tiles of
+one width, row heights, each control's component, each chart's form from the chooser. Write the
+plan's lead and story (page-design.md, section 1) for it, so the target knows which block explains
+the lead. One line per row:
 
 ```
+IA       header; filter panel under it; Steps panel on the left driving the main column; main
 Header   "Funnel analysis", caption "Signed up in 2025 Q2, compared with 2025 Q1"
-         controls on the right: Country (chip multi-select), Signed up (select), Conversion window (select, 6 options)
-Row 1    Overall conversion, the lead, span-3 | Entered span-3 | Converted span-3 | Median time span-3
-Row 2    Funnel by step, bars, span-8 | Steps, the step builder, span-4
-Row 3    Conversion by segment span-6 | Conversion by signup cohort span-6
-Row 4    Time to convert, columns, span-12
+Filters  the same panel, same place: Country (chip multi-select), Signed up (select),
+         Conversion window (select, 6 options), on a surface that doesn't clip
+Body     Steps panel span-3 | main column span-9, its own 12 columns:
+           KPI row: the 4 tiles, span-3 each, the lead first
+           Funnel by step, bars, span-12
+           Conversion by segment span-6 | Conversion by signup cohort span-6
+           Time to convert, columns, span-12
 Footer   a definition under each KPI column, then the basis line
 ```
 
-Use the anatomy and recipes in page-design.md, sections 2 and 3. Keep every feature a reader uses:
-each control, block and interaction is moved and restyled, never dropped without the user's yes.
-Drop only what the unslop pass deletes (decoration, filler, a greeting).
+In a self-check, the IA and the target are the plan the user agreed to at step 2: don't write
+another.
 
-In a self-check, the target is the plan the user agreed to at step 2: don't write a second one.
+Then compare the page with the target. Each block in the wrong span or form, each control with
+the wrong component, and each hole (a column that ends while its neighbor runs on, leaving bare
+paper beside it) is a layout finding (check 6). Fill a hole inside its region (a wider span, one
+more of that region's own blocks in the column), never by moving a block across regions.
 
-Then compare the page with the target. Each block in the wrong row, order or span, each control in
-the wrong place, each chart in the wrong form, and each hole (a column that ends while its
-neighbor runs on, leaving bare paper beside it) is a layout finding (check 6).
-
-## 4. Ask before you look
+## 4. Ask, smoke-test, then look
 
 **Ask before you open a browser.** Opening a browser, driving agent-browser, or taking
-screenshots starts processes and windows on the user's machine, so ask once, in one line, before
-the first: "Can I open the app in a browser and take screenshots to check what the code can't
-show?" Skip the question if the user already allowed it in this session.
+screenshots starts processes and windows on the user's machine, so ask once, before the first (in
+a review, with the look question of section 1). Skip the question if the user already allowed it
+in this session.
 
-- **Yes:** open the app in `anfra serve` (SKILL.md, step 5). Look at it in light and in dark, at
+**With a yes, smoke-test before any screenshot**, and again after the fix. Load the app in
+`anfra serve` headless and read the console of the app's frame. Then click each tab, segmented
+option, select option, button and drawer once. After each click, check two things: no new console
+error, and something changed (the pressed state, a query re-ran in the Inspect panel's Data tab,
+a block's content). A script that throws before `execute()` leaves skeletons that look fine in a
+still picture, and a control wired to an element the restyle renamed does nothing. This takes a
+minute, so "no time for screenshots" never means "no check".
+
+**Without a yes, check the wiring from the code:** every element the script looks up
+(`getElementById`, `querySelector`) exists in the markup, every control has its listener, no
+inline script calls `basecoat.`, and no app part carries a class Basecoat's script claims. Report
+the clicks as unchecked.
+
+- **Yes, then look:** open the app in `anfra serve` (SKILL.md, step 5). Look at it in light and in dark, at
   a 1166px frame (a 1440 laptop) and at 760px (Inspect open), first the top 834px, then the full
   height. Exercise every control once with the mouse, then once with the keyboard alone: Tab
   reaches each control in reading order and shows its ring, Enter or Space opens it, Escape closes
@@ -198,9 +240,11 @@ skips.
 5. Is any lead sentence computed from the data, claiming only what a query measured?
 
 **Layout**
-6. Does the page follow the target layout (section 3) row by row: each block in its row, order and
-   span, each control in its place, no hole beside a column that ended early?
-7. Are there 4 or fewer KPI tiles?
+6. Does the page keep the app's IA (section 3: regions, navigation kind and place, panels beside
+   what they drive, block order), and follow the target layout row by row, with no hole beside a
+   column that ended early?
+7. Are the KPI tiles in a row one width, the lead first and no wider? Are there 4 or fewer in a
+   build (a review keeps the app's count, laid out as page-design.md says)?
 8. Does each chart get the span its content needs (a time series 6 columns or more, labeled bars
    4 or more), rather than a span forced to match the row above? Does the wider span go to the
    chart that explains the lead?
@@ -211,8 +255,9 @@ skips.
    never by a few pixels?
 10. Is every layout space (page padding, between and inside cards) on the 4, 8, 12, 16, 24, 32px
     scale, set by `gap`, with any other value commented?
-11. Are page controls in the header row, or a bare row under it, and never in a card or a filter
-    panel? Is each chart-only control in that chart's header?
+11. In a build, are page controls in the header row, or a bare row under it? In a review, does
+    each control stay in its panel, on a surface that doesn't clip its dropdowns? Is each
+    chart-only control in that chart's header, and is no control inside a `.card` body?
 12. Does the page hold at 760px with no horizontal scroll and no overlapping text?
 13. Does the chart hold its worst row: the longest name truncated with an ellipsis, a null, a
     zero, a single category?
@@ -226,7 +271,7 @@ skips.
 **Color, charts and surfaces**
 17. In the UI, does the accent mark only focus, a selected option or a primary action?
 18. Does a single series take one color, with a selection dimming the other marks rather than
-    recoloring them? Are red and green kept out of marks, and used only in KPI delta pills beside
+    recoloring them? Do KPI figures stay ink, with the tone only in the delta pill? Are red and green kept out of marks, and used only in KPI delta pills beside
     an arrow and a sign? Are status colors kept out of series?
 19. Does each chart match the chooser (no unsorted bars of unordered categories), with end labels
     that don't collide on 2 to 3 lines instead of a legend? Do series more than 5× apart, or in
@@ -304,9 +349,11 @@ the earlier one instead of redoing it:
    colors go into the same token names.
 2. **Components.** Rewrite each control's markup as its component in the map, and point its
    existing listeners at the new elements. The state calls stay as they are: the same filter or
-   `setValue` call fires on the new control's change.
-3. **Layout.** Rebuild the page's markup on the target rows (`.row` and spans), moving each block
-   with its `data-anfra-*` attributes.
+   `setValue` call fires on the new control's change. Keep every id and class the script reads,
+   or change the script with it in the same edit.
+3. **Layout, inside the IA.** Rebuild each region's markup on the target rows (`.row` and
+   spans), keeping each block's `data-anfra-*` attributes. Nothing crosses a region, and tabs,
+   panels and order stay as section 3 wrote them.
 4. **Charts.** The example's `chartTheme()`, `tooltipStyle()` and `tooltipHtml()`, colors from the palette, one
    color per single series, the chooser's form for each block.
 5. **Copy, numbers and states**, with copy.md.
@@ -317,12 +364,16 @@ different query goes back through build steps 2 and 3. Run `anfra validate` and 
 
 **Done when** each of these holds; re-read the file for each, never tick one from memory:
 
+- Every line of the IA (section 3) still holds: the same regions, navigation of the same kind in
+  the same place, panels beside what they drive, blocks in their order.
 - Every line of the component map reads "matches".
 - `rg -n '<select' <app>` finds nothing (in the default look).
 - No hex, `rgb(`, `white` or `black` outside the token blocks and `chartTheme()`, and the token
   blocks are the look's, value for value.
 - The markup follows the target layout row by row, with no hole.
-- No single series is colored per data point.
+- No single series is colored per data point, and KPI tiles in a row share one width.
+- The smoke test (section 4) passed after the fix: every click changed the page and logged no
+  error. Without a browser, the wiring check passed and the report says the clicks are unchecked.
 - Set the app beside example.html: a reader would say one team built both. Where they wouldn't,
   that part is still open.
 

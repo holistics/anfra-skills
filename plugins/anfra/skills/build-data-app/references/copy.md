@@ -52,6 +52,11 @@ shape). One formatter per kind of number, defined once and reused.
 
 - **Currency and locale come from the data.** Take the currency from the measure's AML `format`
   or label (`[$$]#,###0` is dollars); when neither says, ask. One locale for the whole page.
+- **The SDK doesn't carry `format`:** not in `Anfra.datasets`, the result's columns or lineage.
+  Read each measure's `format` from its AML when you write the app, and put it in the file as one
+  map from the query alias to its formatter (`const formatOf = { revenue: money, orders: count }`),
+  with a comment naming the AML it came from. Never guess a currency from a field name; a review
+  keeps the map and fixes only a wrong entry.
 - **Every number carries its unit**, joined by a non-breaking space where the unit is a word
   ("42&nbsp;s", "12&nbsp;agents").
 - **Every change carries its comparison:** "+2.3% vs last year", never a bare "+2.3%".

@@ -139,6 +139,13 @@ In every look:
   dropdown is cut off at the card's bottom edge. Page controls sit in the header row, as in the
   example. With the user's go-ahead for a browser (step 5), open every dropdown before handing
   over; without it, list the dropdowns under what you could not check.
+- **Basecoat's script wires components by class name**, on `DOMContentLoaded` and then for every
+  node added later: `.accordion`, `.combobox`, `.command`, `.drawer`, `.dropdown-menu`,
+  `.popover`, `div.select`, `.sidebar`, `.tabs`, `.toast`, `#toaster` and `input[type="range"]`.
+  Use those names only on that component's own markup. An app's own `.drawer` makes Basecoat
+  throw "Failed to initialize drawer"; name it `app-drawer`. The script loads with `defer`, so
+  `basecoat` is undefined while the page's inline scripts run: never call it. A call at the top
+  level throws before `execute()`, and the page runs no query.
 - Charts follow page-design.md's chart rules. If a `dataviz` skill is available, use it for what
   page-design.md does not cover. Give ECharts hex colors: it cannot parse `oklch`.
 
@@ -214,7 +221,17 @@ for it:
   Basecoat's theme switcher, which stores the mode: follow `prefers-color-scheme` instead, and set
   the `dark` class in `<head>`, as the example does. A script at the end of `body` runs after a
   light first paint, and `anfra serve` reloads the app on every save, so a dark-mode reader would
-  see a white flash each time.
+  see a white flash each time. When the repo's own instructions (AGENTS.md, CLAUDE.md) set dark
+  mode another way, such as an opt-in `data-theme="dark"` on the root, follow them, and keep the
+  `dark` class in step with that attribute, since Basecoat's dark styles and the example's tokens
+  key off `.dark`:
+
+  ```js
+  const root = document.documentElement;
+  const syncDark = () => root.classList.toggle('dark', root.dataset.theme === 'dark');
+  syncDark();
+  new MutationObserver(syncDark).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  ```
 - Forms, popups, navigation, `<iframe>` and `<base>` are blocked: use buttons and `change`
   listeners, never `<form>`.
 - **The app is its one HTML file: nothing it loads may be a file of the repo.** No relative `src`
@@ -276,8 +293,10 @@ executed AQL and error, in how many places it is drawn, and a Locate button. A q
 "Not drawn yet" has no element marked with it.
 
 If you can drive a browser, ask the user once before you start it (it opens processes and windows
-on their machine); with their yes, open the app, exercise every control and click, and read the
-console of the app's frame, not just the page. Otherwise ask the user to, and to report what they see
+on their machine); with their yes, run the smoke test first (design-review.md, section 4): load
+the app headless, click every tab, segmented option, select option, button and drawer once, and
+after each click check the frame's console has no new error and the page changed. Then look at it
+and read the console of the app's frame, not just the page. Otherwise ask the user to, and to report what they see
 against what they expected, with that console. Read errors against
 [references/api.md](references/api.md#errors): a `ValidationError` names a declaring line (or an
 `Anfra.lineage` call with an empty or malformed target list; an unknown field comes back
@@ -315,10 +334,13 @@ as the rules. A review holds the app to the bar a build meets: the page it hands
 one these steps would write today, in the look the user chose, the default anfra look unless they
 named another. The app's own palette, fonts and controls are what is under review, never the look
 to keep: an app written before these rules passes many single checks and still looks unfinished.
+A review restyles the page; it never reorganizes it. The app's information architecture (its
+regions, tabs, panels and block order) stays as it is unless the user approves a change.
 
 1. Find the file in `apps/` (the user may name it by its `<title>`, its URL or a handle) and read
-   it whole.
-2. Set the look, then write the inventory, the component map and the target page
+   it whole. If the user hasn't named the look, ask, with the browser question, in one message
+   (design-review.md, section 1); the default anfra look is the recommended answer.
+2. Set the look, then write the inventory, the component map, the IA and the target page
    (design-review.md, sections 1 to 3). The map and the target are what the fix builds toward.
 3. Walk the checks against the code, with the unslop pass
    ([references/unslop.md](references/unslop.md)) in every look. Ask before opening a browser or
@@ -328,10 +350,12 @@ to keep: an app written before these rules passes many single checks and still l
    then the findings table. When the request only asks for a review, stop here: the user picks
    what to fix. When it asks to fix, polish or clean up, go on.
 5. Fix every finding, Nits included, in section 7's order: tokens, components, layout, charts,
-   copy, the unslop pass. Keep every query, SDK call and feature; a finding that needs a different
-   query goes back through build steps 2 and 3.
-6. Check section 7's "done when" list against the file, walk the checks the fixes touched again,
-   and hand over as step 6 says, with the before and after story.
+   copy, the unslop pass. Keep every query, SDK call, feature and the IA; a finding that needs a
+   different query goes back through build steps 2 and 3, and a structural change waits for the
+   user's yes.
+6. Check section 7's "done when" list against the file, smoke-test again if the user allowed a
+   browser, walk the checks the fixes touched again, and hand over as step 6 says, with the before
+   and after story and any structural suggestions.
 
 ## Related skills
 * [](../aml/) — add the fields and metrics an app needs.
