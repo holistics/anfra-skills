@@ -114,8 +114,12 @@ in every look.
   face for the title and figures, a text face for the rest). Drop violet and Inter unless the
   user names them: they are the default look's, and a creative page that keeps them reads as the default
   with the dials turned. Make one distinctive move and repeat it on every block; a page of
-  unrelated effects has no point of view. Keep the floors (page-design.md, section 11), and light
-  and dark (`prefers-color-scheme`).
+  unrelated effects has no point of view. Write the palette as `oklch()` tokens (with hex twins
+  for ECharts), sibling series at one lightness. Keep the floors (page-design.md, section 11),
+  and light and dark (`prefers-color-scheme`). After two rounds of "not quite" on a look, stop
+  tuning one direction: build three that differ on named axes (density, type, palette) in one
+  throwaway app with a switch between them (state in a variable, the sandbox has no URL state),
+  let the user pick, then delete it.
 - **Default anfra style:** start from [references/example.html](references/example.html), which
   applies the tokens in [references/DESIGN.md](references/DESIGN.md) to
   [Basecoat UI](https://basecoatui.com), a plain HTML/CSS component library. Use its tokens as
@@ -247,7 +251,9 @@ Render each query's states as page-design.md (section 8) says, each in the block
 `executing` with no result yet (a skeleton), `executing` with the previous result (dimmed),
 `success`, success with no rows (the empty scope, in words), and `error` (what failed, then
 `error.message`). Log `result.columns`, `result.rows[0]` and `result.debug?.executedAql` on each
-query's first success: the real row keys, value types and the AQL that ran. Close the page with
+query's first success: the real row keys, value types and the AQL that ran. That log is the
+app's only console output: delete any other debug logging and commented-out code before handing
+over. Close the page with
 the footer copy.md describes: each measure's definition, the date basis and the as-of date.
 
 ## 5. Run and check it
@@ -297,7 +303,8 @@ later request names a part by its handle,
 file for that attribute: it is the element the user means. A `127.0.0.1` URL opens only on this machine; `anfra
 serve` has no authentication, so ask before serving it beyond loopback (`--addr`). Make each
 requested change the same way: restate it if it changes what a number means, change the smallest
-thing, and check that the agreed result still holds.
+thing in place (no `renderTrendV2` beside the old function, no commented-out old code), and check
+that the agreed result still holds.
 
 ## Review an app's design
 

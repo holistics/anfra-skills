@@ -309,7 +309,7 @@
     <header class="page-header" data-anfra-container="header" data-anfra-label="Header">
       <div class="title-block">
         <h1>Sales</h1>
-        <p class="caption" id="scope">Last 12 months, all regions, compared with the same dates a year earlier</p>
+        <p class="caption" id="scope" aria-live="polite">Last 12 months, all regions, compared with the same dates a year earlier</p>
       </div>
       <div class="page-controls">
         <div class="control" data-anfra-block="period-picker" data-anfra-label="Period" data-anfra-control="period">
@@ -348,7 +348,7 @@
       </div>
     </header>
 
-    <section class="row kpis" data-anfra-container="kpis" data-anfra-label="Headline figures">
+    <section class="row kpis" data-anfra-container="kpis" data-anfra-label="Headline figures" aria-live="polite">
       <div id="kpis-status" class="status"></div>
       <div class="card kpi span-4" data-anfra-block="kpi-revenue" data-anfra-label="Revenue" data-anfra-query="kpis">
         <span class="kpi-label">Revenue</span>
@@ -599,7 +599,12 @@
         const box = message('Couldn’t reach the server');
         const retry = Object.assign(document.createElement('button'), { type: 'button', className: 'btn', textContent: 'Try again' });
         retry.dataset.variant = 'outline';
-        retry.addEventListener('click', () => app.refresh());
+        // Ignore clicks while the refresh runs: a second click would send the same queries again.
+        retry.addEventListener('click', () => {
+          if (retry.getAttribute('aria-busy') === 'true') return;
+          retry.setAttribute('aria-busy', 'true');
+          app.refresh();
+        });
         box.append(retry);
         return box;
       }

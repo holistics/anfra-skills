@@ -29,6 +29,8 @@ corrects a written guess in one reply, where an open question costs a round.
    in one line: "GMs, at the Monday meeting: which hotel needs a rate or sales push this week".
    The moment sets the default period (a Monday meeting reads the last full week). A page with
    no decision is a report: say what it is for instead ("the monthly numbers the board sees").
+   Name what the page replaces (a spreadsheet, a weekly email, a dashboard nobody opens): the
+   page has to beat it at the reader's moment, or it won't be opened.
 2. **The lead.** The one number the decision hinges on, and what it is compared with: "RevPAR,
    this year to date vs the same dates last year". When the request lists several measures, the
    lead is the one the decision turns on; the others become the rest of the KPI row.
@@ -56,6 +58,15 @@ Top to bottom, in this order. Leave a part out when the plan has nothing for it;
 | Detail | A table or secondary charts for the reader who keeps going | Below the fold is fine |
 | Footer | Definitions of every measure on the page, the date basis, the data's as-of date | A definition list on the page grid, then one basis line: never a paragraph (below) |
 
+- **KPI row or hero:**
+
+  ```
+  Does one number decide what the reader does, and can a query state why in one sentence?
+  ├── Yes ─▶ hero: that figure beside its computed sentence (copy.md)
+  └── No
+      ├── 2 to 4 measures the reader compares ─▶ KPI row, the lead tile first
+      └── more than 4 ─▶ the lead tiles in a row, the rest in a table
+  ```
 - **No more than 4 KPI tiles.** A fifth tile means the plan has no lead; move the extras into a
   table. Four is what a reader compares at a glance, and equal tiles in a long row have no top.
 - **KPI tile:** label (14px, weight 500, weak ink), value (20px, weight 600, ink, `nowrap`), then
@@ -152,6 +163,9 @@ The example defines these as tokens; take them from there, never write a one-off
   shadows can't be seen on a dark surface, and a light stack left on reads as a smudge.
 - **Hairlines stay crisp:** dividers and table rules use `--hairline`, which is 0.5px on 2x
   screens and 1px elsewhere. Field borders stay real borders: they are part of the control.
+- **An image** (a product photo, a flag, a logo) carries `outline: 1px solid` black at 10%,
+  `outline-offset: -1px`, white at 10% in dark: never a tinted or accent edge, which reads as
+  grime against the surface behind it.
 - **No decorative gradients.** An area fill under a line fades with an eased gradient (the
   example's `easedFill()`, alpha along a smoothstep curve): a two-stop linear fade bands into
   visible stripes. To fade content out, use `mask-image`, never a gradient overlay, and never over
@@ -284,6 +298,15 @@ so hovering one panel marks the same week in every panel.
 - **Design for the worst row, not the first:** the longest category name, a null, a zero, a
   single category, a negative change. Before handing over, find each in the data and look at the
   chart with it; a layout tested only on tidy rows breaks on the first real one.
+- **A mark that filters on click looks clickable:** `cursor: 'pointer'`, a hover emphasis on the
+  mark, and a last tooltip line "Click to filter the page", as the example does. A chart whose
+  marks do nothing keeps the default cursor and no emphasis: a hover that promises a click and
+  does nothing reads as broken.
+- **Every chart has an accessible name:** ECharts `aria: { enabled: true }`, which describes the
+  chart to screen readers; a chart drawn by hand in SVG or canvas gets `role="img"` and an
+  `aria-label` that says what it shows ("Revenue by month, this year vs last year").
+- **Draw charts again once fonts load** (`document.fonts.ready.then(render)`): a canvas keeps the
+  fallback font it first drew its labels in.
 - **Long category labels truncate**, they never shrink the plot: `axisLabel: { width: 160,
   overflow: 'truncate', ellipsis: '…' }`, with the full name in the tooltip.
 - **ECharts needs hex colors** (it cannot parse `oklch`): read them from CSS variables as the
@@ -312,6 +335,20 @@ page it (`pageSize`) rather than drawing them all.
   libraries.
 - **One focus style:** a 2px `--ring` outline offset 3px, set once on `:focus-visible`, as the
   example does. Never Basecoat's half-violet halo (2.1:1 on white) beside it, never `outline: none`.
+- **Focus never strands.** When the focused element goes away (a removed chip, a closed list),
+  move focus to its neighbor or to the control that opened it, as the example's chip field does;
+  focus left on a removed node drops a keyboard reader back to the top of the page.
+- **Hit areas are at least 24px** even when the mark is smaller: a chip's 18px remove button gets
+  a `::before` inset of −4px. Controls are 32px, so this only matters for marks inside them.
+- **Labels open their field:** `<label for>` on an input, `aria-labelledby` on a select's button,
+  so a click on the label works and a screen reader names the field.
+- **A search field** sets `autocomplete="off" spellcheck="false"`: suggestions and red squiggles
+  cover the results the reader is looking for.
+- **A button that starts a request** ("Try again", "Show more") ignores clicks while its request
+  runs (`aria-busy="true"`): a second click fetches the same page twice.
+- **Control chrome isn't text to copy:** `user-select: none` on segmented options, chips, control
+  labels and card-header buttons, so a double-click on a period paints no selection. Never on
+  figures, tables or the footer, which readers copy.
 - **State never changes weight or size.** A pressed segment or a selected row keeps weight 500 and
   shows its state by color and surface: a bolder label widens its button and shifts every control
   after it.
@@ -357,11 +394,21 @@ Each block designs four states, and each holds the block's loaded size so nothin
 - **Loading:** a skeleton shaped like the content, in the same box: the chart area, a 28px bar for
   a figure. Give every block a `min-height` equal to its loaded height. A spinner collapses the
   page and then everything below it jumps when data lands.
+- **A skeleton must show:** paint it in the sunken tone (`--sunken`), not Basecoat's `--muted`,
+  which is near-white on a white card, so loading reads as a blank card.
 - **Updating** (a control changed, the old result is still shown): keep the old result and dim it
   to 0.6 opacity; never blank it. A figure from the old scope must never show under the new
   scope's label: dim it, or skeleton it, until the new result lands.
 - **Empty:** say what scope is empty and how to widen it, in the block's own space: "No orders in
   APAC in this period. Choose a longer period or another region." Never a bare 0 or a blank card.
+- **UI that appears later takes reserved space:** a "Clear selection" button, a hint, a busy cue
+  sits where it pushes nothing, or its row already holds its height (the example's header rule).
+- **Changes a control causes are announced:** the header caption and the KPI row carry
+  `aria-live="polite"`, so a screen reader hears the new scope and figures without hunting.
+- **An app that refreshes on a timer pauses while the tab is hidden** (`document.hidden`); a
+  query every minute nobody sees is load on anfra for nothing.
+- **An inner scroller** (a wide heatmap or table inside its card) sets `overscroll-behavior:
+  contain`, so reaching its end doesn't scroll the page under the reader.
 - **Error:** in the block, never a page-wide banner: what failed in words ("Couldn't load revenue
   by region"), `error.message` under it in caption size, in ink. Never a whole red sentence. A
   `PermissionError` is not a failure: "You don't have access to this data". A `TransportError`
@@ -385,6 +432,8 @@ second visit.
   which also animates sizes and colors you didn't mean to move.
 - **Updating dims after 150ms and restores at once.** A cached result lands in under 150ms;
   dimming for it makes the page flicker on every click.
+- **A theme switch doesn't animate:** flip the `dark` class with transitions off for two frames
+  (the example's `theme-switching` class), or every control tweens its colors on its own clock.
 - **Reduced motion drops movement and keeps fades:** no popover scale, slide or skeleton pulse;
   short opacity and color fades stay, because they carry state without travel.
 

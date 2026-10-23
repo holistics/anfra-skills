@@ -165,6 +165,10 @@ comment records as deliberate, or another row already covers. When one cause pro
 instances (a 13px size in nine rules, a raw hex in every chart), report one row with the count,
 and fix it once at its source.
 
+Report nothing to fill the table: a page that passes is **Ready** with no rows, and a nitpick
+made up to look thorough costs the reader's trust in the real ones. Name each finding's place by
+its handle and its `file:line`.
+
 Open with one line: **Blocking** (a floor fails), **Fix before sharing** (Should findings only),
 or **Ready**. Then the story sentence, before and after the fixes you propose. Then one table,
 most severe first, each part named by its handle so the user can find it in the Inspect panel, and
