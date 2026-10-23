@@ -46,6 +46,7 @@ is a lead, not yet a finding: confirm it in context.
 | `<select multiple>`; radio inputs for options | a segmented control or Basecoat select | 26 |
 | a control inside a `.card` that isn't that chart's own, in its header | the header row | 10 |
 | `100vh`, or `overflow: auto` on the page wrapper | nothing: the frame scrolls | 11 |
+| a `span-N` class or `grid-column: span` on a direct child of the page, outside a `.row` | wrap it in a `.row` | 8 |
 
 **Ask before you open a browser.** Opening a browser, driving agent-browser, or taking
 screenshots starts processes and windows on the user's machine, so ask once, in one line, before

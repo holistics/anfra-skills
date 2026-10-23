@@ -236,8 +236,15 @@
     /* Every row sits on one 12-column grid: edges between rows match exactly or differ by a whole
        column, never by a few pixels. Spans follow the content (page-design.md, Layout recipes). */
     .row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
-    .span-4 { grid-column: span 4; }
-    .span-8 { grid-column: span 8; }
+    /* Spans work only inside a .row. The page is a one-column grid: a `span 12` placed straight
+       in it makes the browser add 11 columns and line every other section up side by side.
+       A full-width block is a .row child with .span-12, or a plain child of the page. */
+    .row > .span-3 { grid-column: span 3; }
+    .row > .span-4 { grid-column: span 4; }
+    .row > .span-6 { grid-column: span 6; }
+    .row > .span-8 { grid-column: span 8; }
+    .row > .span-9 { grid-column: span 9; }
+    .row > .span-12 { grid-column: span 12; }
 
     /* KPI row: label, figure, comparison. min-height holds the loaded size while it loads. */
     .kpi { display: grid; gap: 4px; padding: 16px; min-height: 96px; box-sizing: border-box; align-content: start; }
@@ -288,8 +295,8 @@
     .definition dd { margin: 0; font-size: 12px; line-height: 16px; color: var(--muted-foreground); max-width: 48ch; text-wrap: pretty; }
     .definitions .basis { grid-column: 1 / -1; padding: 0 16px; }
 
-    @media (max-width: 900px) { .charts > * { grid-column: span 12; } }
-    @media (max-width: 720px) { .kpis > *, .definitions > .definition { grid-column: span 6; } }
+    @media (max-width: 900px) { .row.charts > * { grid-column: span 12; } }
+    @media (max-width: 720px) { .row.kpis > *, .row.definitions > .definition { grid-column: span 6; } }
     /* Reduced motion drops movement and keeps short fades: they carry state without travel. */
     @media (prefers-reduced-motion: reduce) {
       .skeleton { animation: none; } /* a still skeleton still holds the shape */

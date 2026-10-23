@@ -98,6 +98,11 @@ uncommented one as a finding.
   columns. Two rows then either share an edge exactly or differ by a full column, which reads as
   a choice. Rows built on their own tracks miss each other by a sliver: three equal KPI tiles
   over a `2fr 1fr` row are off by a third of the gap (about 5px), a jag the eye catches at once.
+- **Spans work only inside a row.** The page itself is a one-column grid; every card sits in a
+  `.row`, and a full-width card is a `.row` holding one `.span-12` card (or a plain child of the
+  page with no span). A `grid-column: span 12` placed straight in the page makes the browser add
+  11 columns and line every other section up side by side, the header and KPI row included.
+  The example scopes its span classes to `.row >` so this can't happen; keep them scoped.
 - **Spans follow the content, not the row above.** A chart needs room for its marks and labels:
   a time series at least 6 columns, a bar chart with category labels at least 4 (about 360px in a
   1166px frame), a table at least 6. Match the KPI tiles' edges when the content fits in them;
