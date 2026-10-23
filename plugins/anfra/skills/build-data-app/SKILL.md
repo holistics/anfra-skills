@@ -24,6 +24,9 @@ References, read when a step needs them:
   error text, the footer. Read it with page-design.md.
 - [references/design-review.md](references/design-review.md): the review procedure and its
   checklist. Read it for a review, and at step 5 of every build.
+- [references/unslop.md](references/unslop.md): the unslop pass that strips what makes a page
+  read as generated, design and copy. **Run it at step 5 of every build and in every review, in
+  every look, and fix what it finds.**
 - [references/api.md](references/api.md): every SDK call, the result shape, the plugins, errors.
   **Read it before writing any code; do not invent APIs.**
 - [references/plugins/](references/plugins/): one file per built-in plugin beyond `core`
@@ -280,7 +283,8 @@ explains it. If you could not check the interface, say so rather than claiming i
 Then check the design: run [references/design-review.md](references/design-review.md) as a
 self-check. Walk its checklist against the code, then, if the user allows a browser, look at the
 page in light and dark at a 1166px and a 760px frame, and fix every Blocking and Should finding
-before you hand over. First drafts fail the same few checks (no lead, one equal card per measure, raw
+before you hand over. Then run the unslop pass ([references/unslop.md](references/unslop.md))
+and fix every tell it finds. First drafts fail the same few checks (no lead, one equal card per measure, raw
 numbers, a legend on a single series): catching them here costs one pass, while each one the user
 catches costs a round of feedback.
 
@@ -304,14 +308,17 @@ the rules.
 
 1. Find the file in `apps/` (the user may name it by its `<title>`, its URL or a handle), read it
    whole, and note which look it is in. In the default look every check is a finding. In their
-   own or a creative look only the floors and the story are; other departures from the baseline
-   are choices, which you may offer as suggestions.
-2. Walk the checklist against the code first. Then ask before opening a browser or taking
-   screenshots (design-review.md, section 1); without a yes, finish from the code and say which
-   checks only a look could settle.
-3. Report the findings table, most severe first, each pointing at a part by its handle. Change
-   nothing yet: the user picks what to fix.
-4. Fix what they picked, the smallest change each, without changing what any number means. A
+   own or a creative look the floors, the story and the unslop pass are findings; other
+   departures from the baseline are choices, which you may offer as suggestions.
+2. Walk the checklist against the code first, then the unslop pass
+   ([references/unslop.md](references/unslop.md)), which every look gets: a generated look is
+   never a style. Then ask before opening a browser or taking screenshots (design-review.md,
+   section 1); without a yes, finish from the code and say which checks only a look could settle.
+3. Report the findings table, most severe first, each pointing at a part by its handle. When the
+   request asks to fix, polish or clean up, go straight on to step 4 and fix every Blocking and
+   Should finding and every slop tell. When it only asks for a review, change nothing yet: the
+   user picks what to fix.
+4. Fix, the smallest change each, without changing what any number means. A
    finding that needs a different query (a comparison the page lacks, a lead it can't compute)
    goes back through build steps 2 and 3 for that query (agree on it, then write and check it).
 5. Walk the checks the fixes touched again, from the code and, if the user allowed it, in the

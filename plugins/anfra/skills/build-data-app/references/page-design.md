@@ -388,24 +388,12 @@ second visit.
 - **Reduced motion drops movement and keeps fades:** no popover scale, slide or skeleton pulse;
   short opacity and color fades stay, because they carry state without travel.
 
-## 10. Subtract before you hand over
+## 10. Unslop before you hand over
 
-Walk every element on the page and ask: what breaks if this is gone? If nothing, delete it. Agents
-add by default, and each addition dilutes the lead. Never add:
-
-- a greeting, avatar or "Signed in as" line;
-- an icon in front of every label or heading, or any emoji;
-- gradients, glass, glows, colored shadows, textures, left-border callout stripes;
-- a caption that restates its heading, or a legend for a single series;
-- an "Insights" or "Key takeaways" card of sentences the data did not produce;
-- "Dashboard", "Overview" or "Analytics" as the page name ("Hotel performance", not "Hotel
-  Performance Dashboard");
-- a second accent color, or a different gray per card;
-- motion for its own sake: blocks that fade or slide in, figures that count up, cards that lift on
-  hover but do nothing on click, `transition: all`.
-
-Then name the one thing on the page only this dataset and this reader could have produced: the
-lead and its comparison. If the answer is "the title", the plan in section 1 was skipped.
+Agents add by default, and every addition dilutes the lead. Before handing over, run the unslop
+pass in [unslop.md](unslop.md): subtract what breaks nothing, sweep the tells (color, type,
+layout, decoration, icons, copy, motion), and check the page still says something only this
+data could. It runs in every look, and what it finds gets fixed.
 
 ## 11. Floors: every look
 

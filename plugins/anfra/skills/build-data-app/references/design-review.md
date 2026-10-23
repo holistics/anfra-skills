@@ -69,11 +69,13 @@ or the page title. If they differ, the first finding is the story.
 
 ## 2. Walk the checks in order
 
-**Floors first, in every look.** A "no" is Blocking, and no new layout fixes it. Then, in the
-default look, walk the rest in order: a page that leads with the wrong thing gets a new layout,
-which makes its spacing findings moot. In the user's own design or a creative look, walk only the
-floors and the story (2 to 5); offer other departures from the baseline as suggestions, never as
-findings.
+**Floors first, in every look.** A "no" is Blocking, and no new layout fixes it. **Then the
+unslop pass ([unslop.md](unslop.md)), also in every look:** each tell it finds is a finding
+(Should, or Blocking when it misleads), never a suggestion, because a page that reads as
+generated is not a style. Then, in the default look, walk the rest in order: a page that leads
+with the wrong thing gets a new layout, which makes its spacing findings moot. In the user's own
+design or a creative look, walk only the story (2 to 5) after those; offer other departures from
+the baseline as suggestions.
 
 **Floors**
 - F1. Do bars start at 0, with no dual y-axis and no pie past 3 parts?
@@ -185,7 +187,9 @@ Otherwise                                                                       
 
 ## 4. Fix
 
-In a review job, wait for the user to pick findings. Fix Blocking findings first. Then fix at the
+In a review job that asks to fix, polish or clean up, fix right after the report: every Blocking
+and Should finding and every slop tell. One that only asks for a review waits for the user to
+pick findings. Fix Blocking findings first. Then fix at the
 root: a token or a shared class that clears several rows at once; change the page's existing
 tokens, never add a second scale beside them. Then the rest, grouped by part, the smallest change
 each, keeping the SDK wiring as it is unless a finding is about it. Run `anfra validate` and quote
