@@ -1,6 +1,6 @@
 ---
 name: build-data-app
-description: Build or change an Anfra Data App — one self-contained HTML file in the repo's `apps/` that queries datasets, and can trace fields' lineage, through the `Anfra` SDK global and renders them with its own HTML, CSS and JS — then check it in `anfra serve`. Use for a dashboard, report, page or interactive analysis over the repo's datasets.
+description: Build, change or review the design of an Anfra Data App (one self-contained HTML file in the repo's `apps/` that queries datasets, and can trace fields' lineage, through the `Anfra` SDK global and renders them with its own HTML, CSS and JS), then check it in `anfra serve`. Use for a dashboard, report, page or interactive analysis over the repo's datasets, and to review, critique or polish an existing app's layout, charts and copy.
 ---
 
 # Building a Data App
@@ -9,8 +9,24 @@ A **Data App** is one self-contained HTML file under the repo's `apps/`. `anfra 
 its `<title>` and runs it in a sandboxed frame where the SDK is already on the global `Anfra`. The
 SDK supplies data and state; every pixel is yours.
 
+This skill has two jobs:
+
+- **Build or change an app:** steps 1 to 6.
+- **Review an app's design:** [Review an app's design](#review-an-apps-design), when the user asks
+  to review, critique, audit or polish an app that exists.
+
 References, read when a step needs them:
 
+- [references/page-design.md](references/page-design.md): how to plan and lay out the page: the
+  lead, the page anatomy, layout recipes, type, color, the chart chooser, controls, motion and
+  states. **Read it at step 2 of every build, in every look.**
+- [references/copy.md](references/copy.md): titles, headings, number and date formats, empty and
+  error text, the footer. Read it with page-design.md.
+- [references/design-review.md](references/design-review.md): the review procedure and its
+  checklist. Read it for a review, and at step 5 of every build.
+- [references/unslop.md](references/unslop.md): the unslop pass that strips what makes a page
+  read as generated, design and copy. **Run it at step 5 of every build and in every review, in
+  every look, and fix what it finds.**
 - [references/api.md](references/api.md): every SDK call, the result shape, the plugins, errors.
   **Read it before writing any code; do not invent APIs.**
 - [references/plugins/](references/plugins/): one file per built-in plugin beyond `core`
@@ -19,10 +35,14 @@ References, read when a step needs them:
   and check `Anfra.plugins.has(name)` before using it.
 - [references/downloads.md](references/downloads.md): the download button for exports and pictures.
   Read it only when the agreed design lists a download.
-- [references/example.html](references/example.html): a complete app in the default look. Start a
-  new file from its skeleton, or from the closest app already in `apps/`.
-- [references/DESIGN.md](references/DESIGN.md): the anfra app design guide (colors, type,
-  spacing, chart palette) behind the default look. Read it when you build in the default look.
+- [references/example.html](references/example.html): a complete app in the default look, laid
+  out as page-design.md says: header with page controls, KPI row with comparisons, a trend beside its
+  breakdown, a footer of definitions. Start a new file from its skeleton, or from the closest app
+  already in `apps/`.
+- [references/DESIGN.md](references/DESIGN.md): the anfra web app's design guide, the source of
+  the default look's tokens (colors, type, radii, chart palette). Read it when you build in the
+  default look, for its tokens only: its sidebar, sign-in sheet, Tailwind classes and logo rules
+  belong to the web app, not to a Data App.
 
 ## 1. Learn the datasets
 
@@ -46,8 +66,13 @@ the week before, with a country picker"). Ask only what changes the numbers: wha
 means, which date counts, what to exclude, each with your recommended answer.
 
 Also ask which look the user wants, unless they already said: the **default anfra style**
-(recommended), **something creative** (you choose the palette and layout), or **their own design**
+(recommended), **something creative** (you choose the palette and type), or **their own design**
 (a brand, colors or a reference to follow). See [Look and feel](#look-and-feel).
+
+Then read [references/page-design.md](references/page-design.md) and
+[references/copy.md](references/copy.md), and write the **page plan**: the lines of
+page-design.md, section 1. The plan comes before the queries because it decides them: a
+comparison in the lead needs its own measure, a breakdown its own query.
 
 Then write the declaration list: every `createQuery` (dataset, dimensions, measures),
 `createFilter`, `createDateDrill`, `mapControl` and `mapCrossFilter`, with real field names, how
@@ -56,8 +81,8 @@ blocks, if any, the reader can download from, one line each with its formats (`t
 a download only when the user asked for one, or propose one where it plainly helps (a detail
 table's data) and let them decide; none is the default. Leave pictures (PNG, PDF) to the host,
 which offers them for every block and the whole page, unless the user asks for them in the app.
-Show it to the user and get a yes before writing the file. When the data cannot answer the
-request, say so and offer the nearest thing it can.
+Show the plan and the list to the user together and get a yes before writing the file. When the
+data cannot answer the request, say so and offer the nearest thing it can.
 
 ### 2.1 Lineage
 
@@ -74,35 +99,55 @@ reader picks a field or clicks a chart), and how the diagram is drawn (see
 ## Look and feel
 
 An app must look finished without the user asking: native controls, default buttons and unstyled
-text are not acceptable. What counts as finished depends on the look the user chose.
+text are not acceptable, in an app you review as much as in one you build. [references/page-design.md](references/page-design.md) and
+[references/copy.md](references/copy.md) are the baseline for every look; how far the page may
+depart from them depends on the look the user chose. Their floors (page-design.md, section 11) hold
+in every look.
 
-- **Their own design:** follow it, and skip the defaults below.
-- **Creative:** pick your own palette, type and layout, and keep the basics: readable contrast,
-  tabular numerals, light and dark (`prefers-color-scheme`), styled loading, empty and error
-  states.
+- **Their own design:** take its colors, type, brand and layout from what they gave. page-design.md
+  fills whatever their design doesn't say.
+- **Creative:** go as far as the user wants: layout, type, palette, density, chart style. Add a
+  direction to the page plan before any CSS: the user's words for the look, a named tradition to
+  borrow from (a newspaper's data desk, Swiss editorial, a trading terminal), 5 to 8 rules you
+  can check in the stylesheet ("one typeface, two weights", "hairlines only, no fills"), and the
+  palette as hex values drawn from the data's domain, at most two typeface families (a display
+  face for the title and figures, a text face for the rest). Drop violet and Inter unless the
+  user names them: they are the default look's, and a creative page that keeps them reads as the default
+  with the dials turned. Make one distinctive move and repeat it on every block; a page of
+  unrelated effects has no point of view. Write the palette as `oklch()` tokens (with hex twins
+  for ECharts), sibling series at one lightness. Keep the floors (page-design.md, section 11),
+  and light and dark (`prefers-color-scheme`). After two rounds of "not quite" on a look, stop
+  tuning one direction: build three that differ on named axes (density, type, palette) in one
+  throwaway app with a switch between them (state in a variable, the sandbox has no URL state),
+  let the user pick, then delete it.
 - **Default anfra style:** start from [references/example.html](references/example.html), which
   applies the tokens in [references/DESIGN.md](references/DESIGN.md) to
   [Basecoat UI](https://basecoatui.com), a plain HTML/CSS component library. Use its tokens as
-  CSS variables, its three text sizes (20, 14, 12px), 32px controls, one violet primary action and
-  the chart palette (violet first). Ignore what only fits the anfra web app itself: Tailwind class
-  names, the sidebar, the sign-in sheet, the logo. Load Inter from the CDN with a `system-ui`
-  fallback.
+  CSS variables, its three text sizes (20, 14, 12px), 32px controls and the chart palette (violet
+  first). Load Inter from the CDN with a `system-ui` fallback.
 
 In every look:
 
 - **A single HTML file uses Basecoat** (pinned CDN CSS and JS, as in the example). Use shadcn
   (`shadcn-vue` for Vue) only when the app is written in React or Vue.
-- **Filters are Basecoat comboboxes**, with `aria-multiselectable="true"` for several values. Never
-  a native `<select multiple>`. Basecoat has no date picker: use two styled `<input type="date">`
-  and preset buttons, as in the example.
-- **Basecoat `.card` is a flex column that clips overflow.** A filter bar built as `class="card
-  filters"` with only `display: flex; flex-wrap: wrap` keeps the column direction, so
-  `align-items: end` pushes every control to the right edge, and the clipped overflow cuts off a
-  combobox's dropdown at the card's bottom edge. Override both on the bar: `flex-direction: row;
-  align-items: flex-end; overflow: visible` (as `.card.filters` does in the example). Check
-  the filter bar in a browser with a dropdown open before handing over.
-- Charts: if a `dataviz` skill is available, follow it. Give ECharts hex colors: it cannot parse
-  `oklch`.
+- **Controls follow page-design.md, section 7:** a segmented control for 2 to 5 options, a
+  Basecoat select for more, a multi-select that stays one 32px line with removable chips and
+  "+N", as in the example. Never the combobox's multi-select chips, which wrap and grow the
+  field, and never a native `<select multiple>`. Basecoat has no date picker: offer period
+  presets, and add two styled `<input type="date">` only when the user wants arbitrary ranges.
+- **Never put controls in a Basecoat `.card`.** It is a flex column that clips its overflow, so a
+  dropdown is cut off at the card's bottom edge. Page controls sit in the header row, as in the
+  example. With the user's go-ahead for a browser (step 5), open every dropdown before handing
+  over; without it, list the dropdowns under what you could not check.
+- **Basecoat's script wires components by class name**, on `DOMContentLoaded` and then for every
+  node added later: `.accordion`, `.combobox`, `.command`, `.drawer`, `.dropdown-menu`,
+  `.popover`, `div.select`, `.sidebar`, `.tabs`, `.toast`, `#toaster` and `input[type="range"]`.
+  Use those names only on that component's own markup. An app's own `.drawer` makes Basecoat
+  throw "Failed to initialize drawer"; name it `app-drawer`. The script loads with `defer`, so
+  `basecoat` is undefined while the page's inline scripts run: never call it. A call at the top
+  level throws before `execute()`, and the page runs no query.
+- Charts follow page-design.md's chart rules. If a `dataviz` skill is available, use it for what
+  page-design.md does not cover. Give ECharts hex colors: it cannot parse `oklch`.
 
 ## 3. Write and check the queries
 
@@ -144,7 +189,14 @@ the list shows.
 `apps/sales/overview.html` opens at `/apps/sales/overview`. Follow the example's skeleton: declare
 everything, `subscribe` a render function, `execute()`, then wire controls and clicks to set state
 and `execute()` again. Keep its two layers apart: the look (styles, markup, chart theme) and the
-SDK wiring.
+SDK wiring. Lay the page out in the agreed plan's order with page-design.md's anatomy and recipes, and
+write every title, heading, number and state with copy.md.
+
+Delete what the plan doesn't use from the example together with its script: a control's markup
+without its JS (or JS without its markup) throws on `null` before `execute()`, and the page shows
+skeletons forever. Replace the example's header comment with one line on what the page is for and
+the plan's decisions (the lead, the defaults, what was left out), so the next change starts from
+them.
 
 The frame is a **sandbox** (`allow-scripts` only, opaque origin) under a **content policy**. Write
 for it:
@@ -168,7 +220,20 @@ for it:
   Load fonts from `@fontsource` on jsDelivr, as the example does, rather than Google Fonts' CSS,
   which differs per browser and so cannot be hashed.
 - `localStorage`, `sessionStorage` and cookies throw: keep state in variables. This includes
-  Basecoat's theme switcher, which stores the mode: follow `prefers-color-scheme` instead.
+  Basecoat's theme switcher, which stores the mode: follow `prefers-color-scheme` instead, and set
+  the `dark` class in `<head>`, as the example does. A script at the end of `body` runs after a
+  light first paint, and `anfra serve` reloads the app on every save, so a dark-mode reader would
+  see a white flash each time. When the repo's own instructions (AGENTS.md, CLAUDE.md) set dark
+  mode another way, such as an opt-in `data-theme="dark"` on the root, follow them, and keep the
+  `dark` class in step with that attribute, since Basecoat's dark styles and the example's tokens
+  key off `.dark`:
+
+  ```js
+  const root = document.documentElement;
+  const syncDark = () => root.classList.toggle('dark', root.dataset.theme === 'dark');
+  syncDark();
+  new MutationObserver(syncDark).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  ```
 - Forms, popups, navigation, `<iframe>` and `<base>` are blocked: use buttons and `change`
   listeners, never `<form>`.
 - **The app is its one HTML file: nothing it loads may be a file of the repo.** No relative `src`
@@ -188,9 +253,9 @@ for it:
 
 Render a selection without rebuilding the chart. A query that drives a cross-filter is not re-run
 by its own selection, so its result is unchanged when the reader clicks: restyle the marks it
-already draws (dim the unselected ones) rather than recreating the series, or the chart replays
-its entry animation on every click. With ECharts, merge with a plain `setOption(option)` for a
-selection change and keep `replaceMerge` for a new result.
+already draws (dim the unselected ones) rather than recreating the series, which redraws every
+mark and drops the hover state on each click. With ECharts, merge with a plain
+`setOption(option)` for a selection change and keep `replaceMerge` for a new result.
 
 Add a download only where the agreed design lists one, never on your own initiative, and read
 [references/downloads.md](references/downloads.md) first: a block gets at most one download
@@ -201,11 +266,14 @@ host's toolbar, so keep every app render-safe: chart entry animations off (EChar
 `animation: false`), images and web fonts from servers that send CORS headers (jsDelivr, Google
 Fonts), and `preserveDrawingBuffer: true` on a WebGL chart.
 
-Render each query's four states: `executing` (loading), `success`, `error` (show
-`error.message`), and success with no rows ("No sales this week", never a bare zero). Log
-`result.columns`, `result.rows[0]` and `result.debug?.executedAql` on each query's first success:
-the real row keys, value types and the AQL that ran. Put on the page the definitions, dates and
-any rounding a reader needs to trust a number.
+Render each query's states as page-design.md (section 8) says, each in the block's loaded size:
+`executing` with no result yet (a skeleton), `executing` with the previous result (dimmed),
+`success`, success with no rows (the empty scope, in words), and `error` (what failed, then
+`error.message`). Log `result.columns`, `result.rows[0]` and `result.debug?.executedAql` on each
+query's first success: the real row keys, value types and the AQL that ran. That log is the
+app's only console output: delete any other debug logging and commented-out code before handing
+over. Close the page with
+the footer copy.md describes: each measure's definition, the date basis and the as-of date.
 
 ## 5. Run and check it
 
@@ -226,8 +294,11 @@ not read (an unknown query name, a block inside a block), and **Data**, each que
 executed AQL and error, in how many places it is drawn, and a Locate button. A query that says
 "Not drawn yet" has no element marked with it.
 
-If you can drive a browser, open the app, exercise every control and click, and read the console
-of the app's frame, not just the page. Otherwise ask the user to, and to report what they see
+If you can drive a browser, ask the user once before you start it (it opens processes and windows
+on their machine); with their yes, run the smoke test first (design-review.md, section 4): load
+the app headless, click every tab, segmented option, select option, button and drawer once, and
+after each click check the frame's console has no new error and the page changed. Then look at it
+and read the console of the app's frame, not just the page. Otherwise ask the user to, and to report what they see
 against what they expected, with that console. Read errors against
 [references/api.md](references/api.md#errors): a `ValidationError` names a declaring line (or an
 `Anfra.lineage` call with an empty or malformed target list; an unknown field comes back
@@ -236,15 +307,57 @@ as that target's `error` or an empty diagram); a
 Compare a misbehaving query's `executedAql` with what you meant, and fix the smallest thing that
 explains it. If you could not check the interface, say so rather than claiming it works.
 
+Then check the design: run [references/design-review.md](references/design-review.md) as a
+self-check. Walk its checklist against the code, then, if the user allows a browser, look at the
+page in light and dark at a 1166px and a 760px frame, and fix every Blocking and Should finding
+before you hand over. Then run the unslop pass ([references/unslop.md](references/unslop.md))
+and fix every tell it finds. First drafts fail the same few checks (no lead, one equal card per measure, raw
+numbers, a legend on a single series): catching them here costs one pass, while each one the user
+catches costs a round of feedback.
+
 ## 6. Hand over
 
-Tell the user, in their terms: what the page shows and how to use each control, its URL, the
-assumptions you made, and what you checked. When a later request names a part by its handle,
+Tell the user, in their terms: what the page leads with and shows, how to use each control, its
+URL, the assumptions you made, and what you checked, design findings you fixed included. When a
+later request names a part by its handle,
 `[Revenue over time](data-anfra-block="trend")` or a bare `data-anfra-block="trend"`, search the
 file for that attribute: it is the element the user means. A `127.0.0.1` URL opens only on this machine; `anfra
 serve` has no authentication, so ask before serving it beyond loopback (`--addr`). Make each
 requested change the same way: restate it if it changes what a number means, change the smallest
-thing, and check that the agreed result still holds.
+thing in place (no `renderTrendV2` beside the old function, no commented-out old code), and check
+that the agreed result still holds.
+
+## Review an app's design
+
+When the user asks to review, critique, audit or polish an app (theirs, a demo, or one you built
+earlier), follow [references/design-review.md](references/design-review.md), with
+[references/page-design.md](references/page-design.md) and [references/copy.md](references/copy.md)
+as the rules. A review holds the app to the bar a build meets: the page it hands back looks like
+one these steps would write today, in the look the user chose, the default anfra look unless they
+named another. The app's own palette, fonts and controls are what is under review, never the look
+to keep: an app written before these rules passes many single checks and still looks unfinished.
+A review restyles the page; it never reorganizes it. The app's information architecture (its
+regions, tabs, panels and block order) stays as it is unless the user approves a change.
+
+1. Find the file in `apps/` (the user may name it by its `<title>`, its URL or a handle) and read
+   it whole. If the user hasn't named the look, ask, with the browser question, in one message
+   (design-review.md, section 1); the default anfra look is the recommended answer.
+2. Set the look, then write the inventory, the component map, the IA and the target page
+   (design-review.md, sections 1 to 3). The map and the target are what the fix builds toward.
+3. Walk the checks against the code, with the unslop pass
+   ([references/unslop.md](references/unslop.md)) in every look. Ask before opening a browser or
+   taking screenshots (section 4); without a yes, finish from the code and say which checks only
+   a look could settle.
+4. Report: the look and the verdict, the story, the target layout, the map's lines that differ,
+   then the findings table. When the request only asks for a review, stop here: the user picks
+   what to fix. When it asks to fix, polish or clean up, go on.
+5. Fix every finding, Nits included, in section 7's order: tokens, components, layout, charts,
+   copy, the unslop pass. Keep every query, SDK call, feature and the IA; a finding that needs a
+   different query goes back through build steps 2 and 3, and a structural change waits for the
+   user's yes.
+6. Check section 7's "done when" list against the file, smoke-test again if the user allowed a
+   browser, walk the checks the fixes touched again, and hand over as step 6 says, with the before
+   and after story and any structural suggestions.
 
 ## Related skills
 * [](../aml/) — add the fields and metrics an app needs.
