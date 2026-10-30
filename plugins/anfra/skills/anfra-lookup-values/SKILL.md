@@ -1,5 +1,5 @@
 ---
-name: lookup-values
+name: anfra-lookup-values
 description: Verify the exact stored values of a field before filtering on them, guarding against case sensitivity, abbreviations, and typos. Use before writing any filter whose literal values you aren't 100% sure match the data.
 ---
 
@@ -41,3 +41,6 @@ anfra query --dataset <uname> "unique(products.type) | where(products.type ilike
 ## If nothing matches
 If you can't find the concept in any field, ask the user to clarify rather than
 guessing a value.
+
+---
+anfra skills 0.15.0
