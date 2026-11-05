@@ -38,4 +38,4 @@ Use [](../anfra-aql/) (syntax, functions, gotchas) and [](../anfra-write-aql/) (
 write the query, and [](../anfra-validate-aql/) to type-check it before running.
 
 ---
-anfra skills 0.15.0
+anfra skills 0.17.0

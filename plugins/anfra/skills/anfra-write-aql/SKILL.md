@@ -47,4 +47,4 @@ Prefer writing the AQL yourself. You can instead hand it to a sub-agent — an `
 * [](../anfra-run-aql/) — run a validated query and get its result.
 
 ---
-anfra skills 0.15.0
+anfra skills 0.17.0

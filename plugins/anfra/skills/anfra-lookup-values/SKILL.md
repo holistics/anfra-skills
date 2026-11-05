@@ -43,4 +43,4 @@ If you can't find the concept in any field, ask the user to clarify rather than
 guessing a value.
 
 ---
-anfra skills 0.15.0
+anfra skills 0.17.0

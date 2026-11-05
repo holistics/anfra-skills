@@ -34,4 +34,4 @@ it with actionable skills such as [](../anfra-write-aql/), [](../anfra-validate-
      wrong-but-valid result — so look these up proactively).
 
 ---
-anfra skills 0.15.0
+anfra skills 0.17.0

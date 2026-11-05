@@ -167,6 +167,10 @@ for it:
   `curl -s <url> | openssl dgst -sha384 -binary | openssl base64 -A` gives what follows `sha384-`.
   Load fonts from `@fontsource` on jsDelivr, as the example does, rather than Google Fonts' CSS,
   which differs per browser and so cannot be hashed.
+- **A library may load after the SDK's first notification.** Load any library a render function
+  calls with a plain `<script>` (no `defer`, `async` or `type="module"`), and still guard the
+  call: when the library is missing (`typeof echarts === 'undefined'`), the render function
+  returns early and the next notification draws.
 - `localStorage`, `sessionStorage` and cookies throw: keep state in variables. This includes
   Basecoat's theme switcher, which stores the mode: follow `prefers-color-scheme`, or the host's
   own mode with `Anfra.theme` ([references/api.md](references/api.md#environment)), instead.
@@ -226,12 +230,16 @@ the repo's problems (AML that does not compile, a data source not configured).
 If you can drive a browser, open the app, exercise every control and click, and read the console
 of the app's frame, not just the page. Otherwise ask the user to, and to report what they see
 against what they expected, with that console. Read errors against
-[references/api.md](references/api.md#errors): a `ValidationError` names a declaring line (or an
-`Anfra.lineage` call with an empty or malformed target list; an unknown field comes back
-as that target's `error` or an empty diagram); a
-`QueryError` carries anfra's message about the AQL, or names the bad entry (`filters[0].field`).
+[references/api.md](references/api.md#errors), by `code`: a `declaration_invalid` error
+(`ValidationError`) names a declaring line; `invalid_request` names a call made wrong (an
+`Anfra.lineage` call with an empty or malformed target list; an unknown field comes back as that
+target's `error` or an empty diagram); `query_invalid` carries anfra's diagnostics for the AQL, with
+their lines, and `validation_failed` names the bad entry (`filters[0].field`).
 Compare a misbehaving query's `executedAql` with what you meant, and fix the smallest thing that
-explains it. If you could not check the interface, say so rather than claiming it works.
+explains it. When the server fails a query, its full cause is in `anfra serve`'s log: on its
+stderr, and in the file `anfra status` prints as `repo.logs`. Find the line by the error's
+`requestId`. A bare "The call failed." is a host-side error, logged in the host page's console.
+If you could not check the interface, say so rather than claiming it works.
 
 ## 6. Hand over
 
@@ -249,4 +257,4 @@ thing, and check that the agreed result still holds.
 * [](../anfra-setup-repo/) — set up the repo and its data source first.
 
 ---
-anfra skills 0.15.0
+anfra skills 0.17.0
