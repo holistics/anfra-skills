@@ -11,8 +11,9 @@ SDK supplies data and state; every pixel is yours.
 
 References, read when a step needs them:
 
-- [references/page-design.md](references/page-design.md): the page plan, layout, the chart
-  chooser, controls, words and numbers, states, and the self-check. **Read it at step 2.**
+- [references/app-design.md](references/app-design.md): layout for each kind of page, the chart
+  chooser, controls, words and numbers, states, and the design self-check. **Read it at step 2 in
+  the default look**; creative and own-design builds skip it.
 - [references/api.md](references/api.md): every SDK call, the result shape, the plugins, errors.
   **Read it before writing any code; do not invent APIs.**
 - [references/plugins/](references/plugins/): one file per built-in plugin beyond `core`
@@ -53,9 +54,26 @@ Also ask which look the user wants, unless they already said: the **default anfr
 (recommended), **something creative** (you choose the palette and type), or **their own design**
 (a brand, colors or a reference to follow). See [Look and feel](#look-and-feel).
 
-Then read [references/page-design.md](references/page-design.md) and write the **page plan** (its
-section 1). The plan comes before the queries because it decides them: a comparison in the lead
-needs its own measure, a breakdown its own query.
+Then write the **page plan**, one line each. Where you must guess, write the guess and mark it
+"(assumed)": the user corrects a written guess in one reply.
+
+1. **Kind of page:** a KPI or monitoring page (the reader checks numbers against a comparison), or
+   another kind: an explorer, a catalog, a lineage view, a detail lookup, an ops list.
+2. **Reader and decision:** who opens the page, when, and what they do after reading it ("GMs, at
+   the Monday meeting: which hotel needs a push this week"). The moment sets the default period.
+3. **The lead**, on a KPI or monitoring page: the one number the decision turns on, and what it is
+   compared with. Other kinds have no lead; don't invent one, and lead with the control or view
+   the reader came for.
+4. **Blocks and controls in reading order:** for each block, the question it answers, its form and
+   its query; for each control, the question it lets the reader ask. A control no question needs
+   is left out.
+5. **Defaults:** the period, comparison and selection the page opens on. A KPI page opens where
+   the story is (the last full month vs the same month last year) rather than on all time with no
+   comparison, which leaves the analysis to the reader; an explorer or catalog may open on all time.
+
+In the default look, read [references/app-design.md](references/app-design.md) before writing the
+plan. The plan comes before the queries because it decides them: a comparison
+in the lead needs its own measure, a breakdown its own query.
 
 Then write the declaration list: every `createQuery` (dataset, dimensions, measures),
 `createFilter`, `createDateDrill`, `mapControl` and `mapCrossFilter`, with real field names, how
@@ -82,25 +100,40 @@ reader picks a field or clicks a chart), and how the diagram is drawn (see
 ## Look and feel
 
 An app must look finished without the user asking: native controls, default buttons and unstyled
-text are not acceptable. How far it departs from page-design.md depends on the look; its floors
-(section 8) hold in every look.
+text are not acceptable.
 
-- **Default anfra style:** start from [references/example.html](references/example.html). It
-  applies anfra's tokens to [Basecoat UI](https://basecoatui.com), a plain HTML/CSS component
-  library, and already has the type scale, 32px controls, cards, chart theme and tooltips: keep
-  them, and spend your effort on the plan.
-- **Their own design:** take its colors, type and layout; page-design.md fills what it doesn't say.
+- **Default anfra style:** start from [references/example.html](references/example.html) and follow
+  app-design.md. The example applies anfra's tokens to [Basecoat UI](https://basecoatui.com), a
+  plain HTML/CSS component library, and already has the type scale, 32px controls, cards, chart
+  theme and tooltips: keep them, and spend your effort on the plan.
+- **Their own design:** take its colors, type and layout from what they gave.
 - **Creative:** you choose the palette, type, density and chart style. Write the direction into
   the plan first (a tradition to borrow from, a palette drawn from the data's domain, one move
-  repeated on every block), and drop the default's violet and Inter unless asked: a creative page
-  that keeps them reads as the default with the dials turned.
+  repeated on every block).
+
+Creative and own-design builds skip app-design.md: they follow the user's design or the plan's
+direction, and the floors below.
+
+**Floors, in every look.** Breaking one makes the page wrong or unusable rather than different:
+
+- Honest charts: bars start at 0, no dual y-axis, no pie past 3 parts.
+- Every number carries its unit, and every change its comparison.
+- Every block has its loading, updating, empty and error states, each in its loaded size.
+- Text meets 4.5:1 and chart marks 3:1 on their surface, in light and dark; nothing the reader
+  must read is under 12px.
+- Real buttons and inputs, visible labels, a visible focus ring, and controls side by side at one
+  height.
+- Nothing only on hover, and nothing that animates on its own: the host pictures the page at any
+  moment.
 
 In every look:
 
 - **A single HTML file uses Basecoat** (pinned CDN CSS and JS, as in the example). Use shadcn
   (`shadcn-vue` for Vue) only when the app is written in React or Vue.
-- **Controls are the example's** (page-design.md, section 4): never a native `<select>`, and never
-  the combobox's multi-select chips, which wrap and grow the field.
+- **Controls are Basecoat's, as in the example:** never a native `<select>`. Several picks stay one
+  32px line of removable chips (the example's multi-select) rather than the combobox's chips, which
+  wrap and grow the field. For a long list, add a search input to its menu that hides the options
+  that don't match: Basecoat's select has no search of its own.
 - **Never put controls in a Basecoat `.card` body.** It is a flex column that clips its overflow,
   so a dropdown is cut off at the card's bottom edge. Page controls sit in the header row.
 - **Basecoat's script wires components by class name**, on `DOMContentLoaded` and then for every
@@ -110,8 +143,9 @@ In every look:
   throw "Failed to initialize drawer"; name it `app-drawer`. The script loads with `defer`, so
   `basecoat` is undefined while the page's inline scripts run: never call it. A call at the top
   level throws before `execute()`, and the page runs no query.
-- Charts follow page-design.md's chooser. If a `dataviz` skill is available, use it for what
-  page-design.md does not cover. Give ECharts hex colors: it cannot parse `oklch`.
+- Charts: in the default look, follow app-design.md's chooser. If a
+  `dataviz` skill is available, use it for what app-design.md does not cover. Give ECharts hex
+  colors: it cannot parse `oklch`.
 
 ## 3. Write and check the queries
 
@@ -215,8 +249,9 @@ host's toolbar, so keep every app render-safe: chart entry animations off (EChar
 `animation: false`), images and web fonts from servers that send CORS headers (jsDelivr, Google
 Fonts), and `preserveDrawingBuffer: true` on a WebGL chart.
 
-Render each query's states as page-design.md (section 6) says: loading, updating, empty and error,
-each in the block's loaded size. Log `result.columns`, `result.rows[0]` and
+Render each query's states, each in the block's loaded size, as the example's `renderStatus()`
+does: loading (a skeleton), updating (the old result, dimmed), empty (the empty scope, in words)
+and error (what failed, then `error.message`). Log `result.columns`, `result.rows[0]` and
 `result.debug?.executedAql` on each query's first success: the real row keys, value types and the
 AQL that ran. That log is the app's only console output: delete other debug logging and
 commented-out code before handing over.
@@ -248,8 +283,9 @@ as that target's `error` or an empty diagram); a
 Compare a misbehaving query's `executedAql` with what you meant, and fix the smallest thing that
 explains it. If you could not check the interface, say so rather than claiming it works.
 
-Then run page-design.md's self-check (section 8) against the file, and fix every "no" before you
-hand over. With a browser, look at the page in light and dark, and in a narrow frame.
+Then read the file against the floors (Look and feel) and, in the default look, app-design.md's
+self-check (section 7). Fix every "no" before you hand over. With a
+browser, look at the page in light and dark, and in a narrow frame.
 
 ## 6. Hand over
 

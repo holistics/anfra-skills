@@ -1,16 +1,9 @@
 <!doctype html>
 <!--
-  A complete Data App in the default look: a header with the page controls, a KPI row compared
-  with last year, the trend beside its breakdown (clicking a region filters the rest), and a
-  footer of definitions. Dataset `ecommerce` and its fields are placeholders: replace them with
-  names from `anfra show`, the definitions with the AML descriptions, and the formatters' locale
-  and currency with the dataset's.
-
-  Two layers, change one without the other:
-  - Design layer: the Basecoat links, the <style> block (anfra tokens on Basecoat's variables, then
-    the page's own parts), the markup, chartTheme() and the formatters.
-  - SDK wiring: everything in the last <script> that touches `app`, a query, a filter or a drill.
-  Only replace the tokens if the user asked for another design.
+  A complete Data App in the default look. Dataset `ecommerce` and its fields are placeholders:
+  replace them with names from `anfra show`, the definitions with the AML descriptions, and the
+  formatters' locale and currency with the dataset's. The design layer (links, <style>, markup,
+  chartTheme(), formatters) and the SDK wiring (the last <script>) change independently.
 -->
 <html lang="en">
 <head>
@@ -18,7 +11,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sales</title>
   <meta name="color-scheme" content="light dark">
-  <!-- Set the theme before first paint, so a dark-mode reader never sees a white flash -->
   <script>document.documentElement.classList.toggle('dark', matchMedia('(prefers-color-scheme: dark)').matches);</script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.2.5/index.css"
     integrity="sha384-ZTIcl2CmY0wyM9ANOhomBco7rEUIlWztf6lGcLKCocKUrIgGCsfisuZyE+hadW8K" crossorigin="anonymous">
@@ -108,7 +100,6 @@
       --chart-tooltip-bg: #221f28; --chart-tooltip-text: #f3f1f6; --chart-tooltip-border: #413e46;
     }
 
-    /* Three sizes only (20, 14, 12px), weights 400/500/600, one control height (32px). */
     html, body { background: var(--background); }
     html { font-synthesis: none; } /* Inter is loaded upright only: never fake an italic */
     body {
@@ -124,7 +115,6 @@
     .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
     /* Every control is 32px, set on every kind together: Basecoat's default is 36px. */
     .btn, .input, .combobox > input[role="combobox"], .select > button { height: 32px; border-radius: 10px; }
-    /* One control surface: white on the card's soft ring, never a hard border. */
     .input, .combobox > input[role="combobox"], .select > button, .btn[data-variant="outline"] {
       background-color: var(--card); border-color: transparent; box-shadow: var(--shadow-e1);
     }
@@ -132,10 +122,8 @@
       :is(.select > button, .btn[data-variant="outline"]):hover { background-color: var(--muted); }
     }
 
-    /* One focus ring (DESIGN.md), replacing Basecoat's halo. */
     :focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; --tw-ring-shadow: 0 0 #0000; }
 
-    /* Only input moves anything: color on hover and press, never a scale; popovers fade. */
     .btn, .select > button, .segmented button, .chip-remove, .chip-more {
       transition-property: color, background-color, border-color, box-shadow;
       transition-duration: 160ms;
@@ -145,8 +133,7 @@
     [data-popover] { transition-property: opacity, scale, visibility; transition-duration: 150ms;
                      transition-timing-function: var(--ease-out); transform-origin: top; }
     [data-popover][aria-hidden="true"] { scale: 0.97; translate: none; }
-    .theme-switching, .theme-switching * { transition: none !important; }
-    .segmented, .control-label, .chips, .card > header button { user-select: none; } /* chrome, not text */
+    .segmented, .control-label, .chips, .card > header button { user-select: none; }
     /* A multi-select stays one 32px line: the chips that fit, then "+N". The chips sit over the
        field, not in its button (a button can't hold buttons). */
     .multi-select { position: relative; width: 240px; }
@@ -174,7 +161,6 @@
                    box-shadow: var(--shadow-e2); }
     .picks-panel[hidden] { display: none; }
 
-    /* Header: title and scope on the left, page controls on the right of the same row. */
     .page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
                    gap: 16px 24px; }
     .title-block { display: grid; gap: 4px; }
@@ -182,7 +168,6 @@
     .control { position: relative; display: grid; gap: 8px; }
     .control-label { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--muted-foreground); }
 
-    /* Segmented control: a sunken track, the pressed option a white chip (radius 10 − 2 inset). */
     .segmented { display: inline-flex; gap: 2px; padding: 2px; height: 32px; box-sizing: border-box;
                  border-radius: 10px; background: var(--sunken); }
     .segmented button { height: 28px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent;
@@ -193,9 +178,7 @@
 
     @media (min-resolution: 2dppx) { :root { --hairline: 0.5px; } }
 
-    /* Cards: white on paper. Basecoat's small card gives 16px inside. */
     .card { border-radius: 14px; box-shadow: var(--shadow-e1); position: relative; }
-    /* What floats takes e2. */
     [data-popover] { border-radius: 10px; box-shadow: var(--shadow-e2); }
     /* The title's line box is trimmed to its capitals, so the space above them matches the
        16px side padding. */
@@ -205,7 +188,6 @@
     /* When one header in a row holds a control, every header takes its 32px: titles share a line. */
     .row:has(> .card > header :is(.segmented, .select, .btn:not([hidden]))) > .card > header { min-height: 32px; }
 
-    /* One 12-column grid for every row, spans following the content (page-design.md, Layout). */
     .row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
     /* Spans work only inside a .row: a `span 12` straight in the one-column page adds 11 columns
        and lines every section up side by side. */
@@ -216,12 +198,10 @@
     .row > .span-9 { grid-column: span 9; }
     .row > .span-12 { grid-column: span 12; }
 
-    /* KPI row: label, figure, comparison. min-height holds the loaded size while it loads. */
     .kpi { display: grid; gap: 4px; padding: 16px; min-height: 96px; box-sizing: border-box; align-content: start; }
     .kpi-label { font-weight: 500; color: var(--weak); text-box: trim-start cap alphabetic; } /* optical top inset */
     .kpi-value { font-size: 20px; line-height: 28px; font-weight: 600; }
     .kpi-delta { display: flex; min-height: 20px; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
-    /* Arrow and sign carry the direction; the tint says good or bad for this measure. */
     .delta-pill { display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 6px; border-radius: 9999px;
                   font-weight: 500; background: var(--muted); color: var(--weak); }
     .delta-pill[data-tone="good"] { background: var(--success-container); color: var(--success-text); }
@@ -232,7 +212,6 @@
     .kpis { position: relative; }
     .kpis > .status { border-radius: 14px; box-shadow: var(--shadow-e1); }
 
-    /* Main row: the trend on 8 columns, its breakdown on 4 (6 + 6 when the breakdown needs room). */
     .chart-body { position: relative; }
     .chart, .kpi { transition: opacity 160ms var(--ease-out); }
     .chart { height: 320px; }
@@ -245,7 +224,6 @@
     .status .message { max-width: 40ch; text-align: center; display: grid; gap: 4px; }
     .status .message .caption { overflow-wrap: anywhere; }
 
-    /* One tooltip layout for every chart (tooltipHtml()): title, a row per series, a hint. */
     .tt { display: grid; gap: 4px; min-width: 160px; }
     .tt-title { font-weight: 500; }
     .tt-row { display: grid; grid-template-columns: 8px 1fr auto; align-items: center; gap: 8px; }
@@ -253,7 +231,6 @@
     .tt-value { font-weight: 500; font-variant-numeric: tabular-nums; text-align: right; }
     .tt-hint { color: var(--muted-foreground); }
 
-    /* Definitions: one entry per measure under its KPI's column, then the basis line. */
     .definitions { padding-top: 16px; border-top: var(--hairline) solid var(--border); row-gap: 12px; }
     .definition { margin: 0; padding: 0 16px; display: grid; gap: 2px; align-content: start; }
     .definition dt { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--weak); }
@@ -262,7 +239,6 @@
 
     @media (max-width: 900px) { .row.charts > * { grid-column: span 12; } }
     @media (max-width: 720px) { .row.kpis > *, .row.definitions > .definition { grid-column: span 6; } }
-    /* Reduced motion drops movement and keeps short fades. */
     @media (prefers-reduced-motion: reduce) {
       .skeleton { animation: none; } /* a still skeleton still holds the shape */
       [data-popover][aria-hidden="true"] { scale: none; }
@@ -360,7 +336,6 @@
       </section>
     </section>
 
-    <!-- Definitions: one per KPI, in its column; each from the measure's AML description, one clause. -->
     <footer class="row definitions" data-anfra-block="definitions" data-anfra-label="Definitions">
       <dl class="definition span-4"><dt>Revenue</dt><dd>Order amount before refunds, by order date</dd></dl>
       <dl class="definition span-4"><dt>Orders</dt><dd>Orders placed, by order date</dd></dl>
@@ -372,13 +347,7 @@
   <script>
     // ---- Design layer: follow the OS light/dark setting (no storage: the frame is sandboxed). ----
     const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    // Flip the theme with transitions off, or every control tweens its colors on its own clock.
-    const applyTheme = () => {
-      const root = document.documentElement;
-      root.classList.add('theme-switching');
-      root.classList.toggle('dark', darkQuery.matches);
-      requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
-    };
+    const applyTheme = () => document.documentElement.classList.toggle('dark', darkQuery.matches);
 
     function chartTheme () {
       const css = getComputedStyle(document.documentElement);
@@ -392,8 +361,7 @@
       };
     }
 
-    // ECharts draws its tooltip as a white box: theme it from tokens, keep it inside the card
-    // (a card clips what overflows it), and don't let it glide behind the pointer.
+    // ECharts' tooltip is a white box: theme it, and confine it, since a card clips overflow.
     const tooltipStyle = (theme) => ({
       confine: true, transitionDuration: 0,
       backgroundColor: theme.tooltip.bg, borderColor: theme.tooltip.border, borderWidth: 1, padding: [6, 8],
@@ -401,8 +369,6 @@
       extraCssText: 'border-radius: 6px; box-shadow: var(--shadow-e2);',
     });
 
-    // Every chart's tooltip goes through this one layout. ECharts' own puts values in weight 900
-    // beside round markers, a second tooltip style beside any custom one.
     function tooltipHtml (title, rows, hint) {
       const esc = echarts.format.encodeHTML;
       return `<div class="tt"><div class="tt-title">${esc(title)}</div>`
@@ -411,17 +377,7 @@
         + (hint ? `<div class="tt-hint">${esc(hint)}</div>` : '') + '</div>';
     }
 
-    // An area fill that fades out along a smoothstep curve: a two-stop linear fade bands visibly.
-    function easedFill (hex, maxAlpha) {
-      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-      const stops = Array.from({ length: 9 }, (_, i) => {
-        const t = i / 8;
-        return { offset: t, color: `rgba(${r}, ${g}, ${b}, ${(maxAlpha * (1 - t * t * (3 - 2 * t))).toFixed(3)})` };
-      });
-      return new echarts.graphic.LinearGradient(0, 0, 0, 1, stops);
-    }
-
-    // One formatter per kind of number (page-design.md, section 5). Values arrive as strings.
+    // One formatter per kind of number. Values arrive as strings.
     const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
     const moneyShort = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 });
     const count = new Intl.NumberFormat('en-US');
@@ -438,8 +394,7 @@
       return monthLabel.format(date);
     }
 
-    // A period the data hasn't finished (this month, so far) gets "to date" on its label, so its
-    // lower total doesn't read as a drop. Its last-year point covers the same days.
+    // A period the data hasn't finished gets "to date" on its label.
     function isPartial (iso, grain, latest) {
       if (!latest) return false;
       const start = new Date(iso);
@@ -450,18 +405,14 @@
       return new Date(latest).getTime() < end.getTime() - 86400000;
     }
 
-    // The change vs last year: "+6.2%", its direction, or a note when there is nothing to compare.
-    // Rounded before the sign is chosen, so −0.0% never shows.
+    // The change vs last year, rounded before the sign is chosen.
     function delta (current, previous) {
       if (current == null || previous == null || Number(previous) === 0) return { note: 'No figure for last year' };
       const ratio = Math.round((Number(current) / Number(previous) - 1) * 1000) / 1000;
       if (ratio === 0) return { note: 'No change vs last year' };
       return { value: minus(change.format(ratio)), direction: ratio > 0 ? 'up' : 'down' };
     }
-    const arrows = {
-      up: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
-      down: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
-    };
+    const arrows = { up: '↑', down: '↓' };
 
     // ---- SDK wiring ----
     const app = Anfra.createApp({ title: 'Sales' });
@@ -532,8 +483,7 @@
     let currentPeriod = 'Last 12 months';
     let pickedRegions = [];
 
-    // Loading (no result yet): a skeleton in the block's own box. Updating (a result is shown):
-    // dim it. Error and empty: a message in the block, in words. Success: nothing over the chart.
+    // Loading: a skeleton. Updating: dim the result. Error and empty: a message, in the block.
     function renderStatus (query, bodyId, statusId, emptyText, errorTitle) {
       const body = document.getElementById(bodyId);
       const el = document.getElementById(statusId);
@@ -556,8 +506,7 @@
       return box;
     }
 
-    // Each error class reads differently (api.md, Errors): no access is not a failure, and a
-    // network problem gets a way to try again.
+    // Each error class reads differently (api.md, Errors).
     function failure (query, title) {
       if (query.error.name === 'PermissionError') return message('You don’t have access to this data');
       if (query.error.name === 'TransportError') {
@@ -593,8 +542,7 @@
         deltaEl.textContent = d.note;
         return;
       }
-      const pill = Object.assign(document.createElement('span'), { className: 'delta-pill', innerHTML: arrows[d.direction] });
-      pill.append(d.value);
+      const pill = Object.assign(document.createElement('span'), { className: 'delta-pill', textContent: `${arrows[d.direction]} ${d.value}` });
       pill.dataset.tone = goodWhen == null ? '' : (d.direction === goodWhen ? 'good' : 'bad');
       deltaEl.replaceChildren(pill, 'vs last year');
     }
@@ -606,7 +554,6 @@
       status.replaceChildren();
       status.classList.toggle('visible', kpis.state === 'error');
       if (kpis.state === 'error') {
-        // One message over the whole row, not three copies of it.
         tiles.forEach((tile) => tile.classList.remove('is-updating'));
         status.append(failure(kpis, 'Couldn’t load the headline figures'));
         return;
@@ -617,7 +564,6 @@
         });
         return;
       }
-      // While updating, the old figures stay, dimmed, and never under a new label.
       tiles.forEach((tile) => tile.classList.toggle('is-updating', kpis.state === 'executing'));
       const row = kpis.result.rows[0] ?? {};
       setKpi('kpi-revenue', row.revenue, (v) => moneyShort.format(v), row.revenue_ly, 'up');
@@ -655,13 +601,11 @@
       });
       const valueAxis = { type: 'value', splitNumber: 4, axisLabel: { color: theme.text, fontSize: 12, formatter: (v) => moneyShort.format(v) },
         axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: theme.grid } } };
-      // Two lines, labeled at their ends instead of a legend: this year in violet, last year in context gray.
       trendChart.setOption({
         animation: false,
         textStyle: { fontFamily: 'Inter Variable, Inter, system-ui, sans-serif' },
         grid: { left: 8, right: 72, top: 16, bottom: 8, containLabel: true },
         aria: { enabled: true }, // a generated description, read by screen readers
-        // The message first: this year's row, then last year's.
         tooltip: { ...tooltipStyle(theme), trigger: 'axis', formatter: (params) => tooltipHtml(params[0].axisValueLabel,
           params.slice().reverse().map((p) => ({ name: p.seriesName, color: p.color, value: p.value == null ? 'No data' : money.format(p.value) }))) },
         xAxis: { type: 'category', boundaryGap: false, data: labels, ...axisStyle(theme),
@@ -673,7 +617,7 @@
             endLabel: { show: true, formatter: 'Last year', color: theme.text, fontSize: 12 },
             data: rows.map((row) => (row.revenue_ly == null ? null : Number(row.revenue_ly))) },
           { name: 'This year', type: 'line', showSymbol: false, labelLayout: { moveOverlap: 'shiftY' }, lineStyle: { color: theme.cat[0], width: 2 }, itemStyle: { color: theme.cat[0] },
-            areaStyle: { color: easedFill(theme.cat[0], 0.16) },
+            areaStyle: { color: theme.cat[0], opacity: 0.1 },
             endLabel: { show: true, formatter: 'This year', color: theme.cat[0], fontSize: 12, fontWeight: 500 },
             data: rows.map((row) => (row.revenue == null ? null : Number(row.revenue))) },
         ],
@@ -685,14 +629,12 @@
       const rows = byRegion.result.rows;
       const selected = new Set(byRegion.selectedRows.map((row) => row.region));
       const max = Math.max(...rows.map((row) => Number(row.revenue)));
-      // Sorted horizontal bars, value at each bar's end, no value axis: the labels carry the numbers.
-      // A plain setOption merges into the series the chart has: a click only restyles the bars.
+        // A plain setOption merges into the series the chart has: a click only restyles the bars.
       byRegionChart.setOption({
         animation: false,
         aria: { enabled: true },
         textStyle: { fontFamily: 'Inter Variable, Inter, system-ui, sans-serif' },
         grid: { left: 8, right: 56, top: 0, bottom: 0, containLabel: true },
-        // The bars filter the page on click: say so where the reader looks before clicking.
         tooltip: { ...tooltipStyle(theme), formatter: (p) => tooltipHtml(p.name,
           [{ name: 'Revenue', color: theme.cat[0], value: money.format(rows[p.dataIndex].revenue) }], 'Click to filter the page') },
         xAxis: { type: 'value', show: false, max },
@@ -731,7 +673,6 @@
     // ECharts paints labels on a canvas in whatever font has loaded by then: draw again once Inter has.
     document.fonts.ready.then(render);
 
-    // A click toggles a region in or out of the selection, which filters the KPIs and the trend.
     byRegionChart.on('click', (params) => {
       const rows = byRegion.result.rows;
       const row = params.componentType === 'yAxis'
@@ -747,7 +688,6 @@
       app.execute();
     });
 
-    // Segmented controls: the pressed option is the white chip.
     function pressOnly (buttons, pressed) {
       buttons.forEach((button) => button.setAttribute('aria-pressed', String(button === pressed)));
     }
@@ -793,8 +733,7 @@
       document.getElementById('region-trigger').disabled = true;
       console.error('Could not load region options', err);
     });
-    // The field shows the picks that fit as chips, each with a remove button, then "+N", which
-    // lists them all. The list and the menu never show at once: opening one closes the other.
+    // Chips that fit, then "+N" listing all picks; the list and the menu never show at once.
     const regionField = regionSelect.closest('.multi-select');
     const regionChips = document.getElementById('region-chips');
     const regionPicks = document.getElementById('region-picks');
