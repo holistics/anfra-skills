@@ -23,6 +23,7 @@ References, read when a step needs them:
   new file from its skeleton, or from the closest app already in `apps/`.
 - [references/DESIGN.md](references/DESIGN.md): the anfra app design guide (colors, type,
   spacing, chart palette) behind the default look. Read it when you build in the default look.
+- The SDK docs, for what these references don't cover: look it up with [](../anfra-docs/).
 
 ## 1. Learn the datasets
 
@@ -206,10 +207,15 @@ host's toolbar, so keep every app render-safe: chart entry animations off (EChar
 `animation: false`), images and web fonts from servers that send CORS headers (jsDelivr, Google
 Fonts), and `preserveDrawingBuffer: true` on a WebGL chart.
 
-Render each query's four states: `executing` (loading), `success`, `error` (show
-`error.message`), and success with no rows ("No sales this week", never a bare zero). Log
+Render each query's four states: `executing` (loading), `success`, `error`, and success with no
+rows ("No sales this week", never a bare zero). Render an error by who must act, as
+[references/api.md](references/api.md#errors) shows: no access or sign in again for `forbidden` and
+`unauthenticated`, the message for any other `user` or `client` error, and for a `server` one
+"couldn't load" with a Retry that calls `app.execute()`, which reruns only the failed queries. Log
 `result.columns`, `result.rows[0]` and `result.debug?.executedAql` on each query's first success:
-the real row keys, value types and the AQL that ran. Put on the page the definitions, dates and
+the real row keys, value types and the AQL that ran. A `console.log` stays in the browser's
+console (only warnings and errors reach `anfra serve`'s log): working from the log alone, run the
+query with `anfra query` for its columns. Put on the page the definitions, dates and
 any rounding a reader needs to trust a number.
 
 ## 5. Run and check it
@@ -227,18 +233,41 @@ Leave it running: it reloads the open app whenever its file, or the AML, changes
 exception: run `anfra ingest` after an AML change, or it shows the old definitions. Its header shows
 the repo's problems (AML that does not compile, a data source not configured).
 
-If you can drive a browser, open the app, exercise every control and click, and read the console
-of the app's frame, not just the page. Otherwise ask the user to, and to report what they see
-against what they expected, with that console. Read errors against
+Open the app in a browser (yours, or ask the user to) and exercise every control and click. Then
+read what went wrong without the browser: while the app is open, `anfra serve` writes each of its
+runtime errors (a failed query, an uncaught error or rejection, a listener's exception, a call
+the host failed) and its `console.error` / `console.warn` lines to its log, the file `anfra
+status` prints as `repo.logs`, one JSON line each with `"service":"app"`, the app's path as `app`,
+and `"event":"app.error"` (the error's message as `msg`, with its `kind`, `code`, `scope`,
+`request_id`, `stack`) or
+`"event":"app.console"` (the line as `msg`). The `kind` says where the error came from:
+`call.query` (a failed query), `call.fetch_more`, `call.export` and the like (a call you left
+unhandled), `app.uncaught`, `app.listener` (your code), `plugin.uncaught` (a plugin's), or
+`host.internal` (the host's):
+
+```sh
+grep '"service":"app"' <repo.logs> | grep '"app":"sales/overview.html"' | tail -20
+```
+
+No `"service":"app"` lines at all, with the app open, means `anfra serve` runs with
+`ANFRA_NO_APP_LOGS=1`: read the panel instead, or ask the user to.
+
+Each load of the app starts with an `"event":"app.mounted"` line, with the file's `modified` time:
+after an edit, read only the lines after the last one, or you are reading the old file's errors.
+A stack names the file's own lines as `definition:<line>:<column>`, and the SDK's as `anfra-sdk.js`.
+
+The same errors are in the panel's Overview, under Problems. Read errors against
 [references/api.md](references/api.md#errors), by `code`: a `declaration_invalid` error
 (`ValidationError`) names a declaring line; `invalid_request` names a call made wrong (an
 `Anfra.lineage` call with an empty or malformed target list; an unknown field comes back as that
 target's `error` or an empty diagram); `query_invalid` carries anfra's diagnostics for the AQL, with
-their lines, and `validation_failed` names the bad entry (`filters[0].field`).
+their lines, and `validation_failed` names the bad entry a control or cross-filter added
+(`input.filters[0].field`: a `mapControl` typo, an unsupported operator, a drill on a field no
+dimension is built on).
 Compare a misbehaving query's `executedAql` with what you meant, and fix the smallest thing that
-explains it. When the server fails a query, its full cause is in `anfra serve`'s log: on its
-stderr, and in the file `anfra status` prints as `repo.logs`. Find the line by the error's
-`requestId`. A bare "The call failed." is a host-side error, logged in the host page's console.
+explains it. When the server fails a query, its full cause is in the same log: find the server's
+line by the app line's `request_id`. A bare "The call failed." is a host-side error: its app line
+(`"kind":"host.internal"`) has the original message and the call.
 If you could not check the interface, say so rather than claiming it works.
 
 ## 6. Hand over
@@ -251,10 +280,15 @@ serve` has no authentication, so ask before serving it beyond loopback (`--addr`
 requested change the same way: restate it if it changes what a number means, change the smallest
 thing, and check that the agreed result still holds.
 
+When the user says something is wrong ("the chart is empty"), read the app's log lines since its
+last `app.mounted` before asking them anything (see "Run and check it"): the error, its `kind` and
+the server's line by `request_id` usually say what. If there is no mount since your last edit, ask
+them to reload the app first.
+
 ## Related skills
 * [](../anfra-aml/) — add the fields and metrics an app needs.
 * [](../anfra-write-aql/) — write and validate the queries.
 * [](../anfra-setup-repo/) — set up the repo and its data source first.
 
 ---
-anfra skills 0.17.0
+anfra skills 0.19.0

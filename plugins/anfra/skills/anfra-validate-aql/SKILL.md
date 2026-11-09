@@ -27,4 +27,4 @@ Use [](../anfra-aql/) (syntax, functions, gotchas) and [](../anfra-write-aql/) (
 write correct AQL and to fix whatever validation reports.
 
 ---
-anfra skills 0.17.0
+anfra skills 0.19.0

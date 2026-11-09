@@ -58,7 +58,7 @@ How you name a field **to the SDK** (in `createFilter` and `mapControl`):
 `model.field` for a model field, a bare `name` for a dataset-level metric. Names come from
 `Anfra.datasets`, never from labels. A filter's `field` is checked at once (a `ValidationError`
 with a "did you mean"); a `mapControl` field is not checked until the query runs, so a typo there
-arrives as the query's `query_invalid` error.
+arrives as the query's `validation_failed` error, its violation at `input.filters[N].field`.
 
 ## App
 
@@ -77,7 +77,7 @@ is almost always right.
 | `app.createDateDrill(name, { default?, label? })` | Declares a date grain switch. See [Date drill](#date-drill). |
 | `app.mapControl(control, query, { field, aggregation? })` | The control conditions `field` of `query`. |
 | `app.mapCrossFilter(fromQuery, toQuery)` | Rows selected in `fromQuery` filter `toQuery`. |
-| `await app.execute()` | Runs every query whose inputs changed. Resolves `{ succeeded, failed }`, never rejects. |
+| `await app.execute()` | Runs every query whose inputs changed, and every query whose last run failed: it is also the retry. Resolves `{ succeeded, failed }`, never rejects. |
 | `await app.refresh()` | Re-runs every query, whether or not its inputs changed. |
 | `app.subscribe(fn)` | Calls `fn` on any change in the app or its entities. Returns an unsubscribe. An exception `fn` throws is logged to the console and stops nothing else: the queries and the other listeners carry on. |
 | `app.hasChanges` | A control or the selection changed since the last execute: use for an "Apply" button. |
@@ -257,7 +257,7 @@ Useful operators by type (the full list is in the SDK's `Operator` type):
 - boolean: `is_true`, `is_false`
 
 `matches_user_attribute` and the `transform_pop_*` operators are not supported on anfra; a query
-they reach fails with a `query_invalid` error.
+they reach fails with a `validation_failed` error, its violation at `input.filters[N].operator`.
 
 A condition with no values (or `operator: 'none'`) sends nothing: the query runs unfiltered. Give a
 filter a starting value with `default: { operator, values }`.
@@ -274,7 +274,8 @@ anfra finds every dimension of the query built directly on that exact field and 
 grain, so:
 
 - Map to the **field reference** (`orders.created_at`), never the dimension's alias. A field no
-  dimension is built on fails the query with a `query_invalid` error.
+  dimension is built on fails the query with a `validation_failed` error, its violation at
+  `input.dateDrills[N].field`.
 - The dimension must be **aliased**, and can be the raw field (`period: orders.created_at`) or
   already truncated (`period: date_trunc(orders.created_at, "month")` or
   `period: orders.created_at | month()`); the drill overrides any of them. A computed dimension
@@ -367,19 +368,34 @@ Every error is the API's error document: branch on `err.scope` (who must act) an
 | Code | Scope | When | What to do |
 | --- | --- | --- | --- |
 | `declaration_invalid` | client | Thrown synchronously while declaring (a `ValidationError`): unknown dataset, unknown filter field, duplicate name, invalid mapping, disabled capability. | Fix the declaring line it names. It surfaces as an uncaught error in the console. |
-| `query_invalid` | user | Stored on `query.error`: anfra refused the AQL, a mapped field or an operator. | Read `details.diagnostics` (or the message); fix the AQL or the mapping. |
-| `validation_failed` | user | anfra refused part of the request: `details.violations` names each field (`filters[0].field`). | Fix that entry. |
+| `query_invalid` | user | Stored on `query.error`: anfra refused the query's AQL. | Read `details.diagnostics` (or the message); fix the AQL. |
+| `validation_failed` | user | Stored on `query.error`: anfra refused part of the request a control or a cross-filter added (an unknown mapped field, an unsupported operator, a drill on a field no dimension is built on). `details.violations` names each entry (`input.filters[0].field`). | Fix that mapping or control. |
 | `query_failed` | user | The query ran and its data source failed it. | Read the message; it is the data source's. |
 | `result_too_large`, `page_too_large` | user | Too many rows or bytes: `details` holds the limit. | Aggregate, filter, or page (`pageSize`). |
 | `forbidden` / `unauthenticated` | user | This reader may not see it / their session is gone. Not raised by a local `anfra serve`, whose reader sees everything, but a host that serves other people may. | Render "no access" or "sign in again", not a failure. |
 | `invalid_request` | client | A call the app made wrong, which a plugin refused (`Anfra.lineage` with an empty list, `Anfra.render` of a missing block). | Fix the call it names. |
-| `connection_failed`, `internal_server_error`, `call_failed` | server | The server could not be reached or failed, or the host failed the call (`call_failed`: its cause is in the host page's console). | Show a retry. |
+| `connection_failed`, `internal_server_error`, `call_failed` | server | The server could not be reached or failed, or the host failed the call (`call_failed`: its cause is in `anfra serve`'s log, as a `host.internal` line). | Show "couldn't load" with a Retry that calls `app.execute()`. |
 
 Other codes are the host's own: treat them by `scope`. A query's error is stored on the query,
 never thrown; `fetchMore`, exports and plugin calls reject with one.
 
+One recipe for every block, in its render function:
+
 ```js
-if (query.error?.code === 'forbidden') showNoAccess();
-else if (query.error?.scope === 'server') showRetry();
-else showProblem(query.error.message);
+if (query.state === 'executing') showLoading();
+else if (query.state === 'error') {
+  const { code, scope, message } = query.error;
+  if (code === 'forbidden') showNoAccess();
+  else if (code === 'unauthenticated') showSignInAgain();
+  else if (scope === 'server') showRetry(() => app.execute()); // reruns only the failed queries
+  else showProblem(message);                                    // user or client: the message says what
+} else if (query.result.rows.length === 0) showEmpty();
+else draw(query.result);
 ```
+
+Never throw from a `subscribe()` listener, and guard a library that may load late. What you don't
+handle is still seen: every failed query (`call.query`), call you leave unhandled
+(`call.fetch_more`, `call.export`), uncaught error or unhandled rejection (`app.uncaught`), and
+listener exception (`app.listener`) is reported to the host, which on `anfra serve` lists it in the
+panel's Problems and writes it to its log (see the skill's "Run and check it"). An error you catch
+yourself (a `fetchMore` or export) is not reported: show it.

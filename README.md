@@ -1,4 +1,4 @@
-> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/9496be7a0a24ce7a3b0288665745ee462d4ff169/skills), at anfra 0.17.0. Changes go there; this repo is overwritten on each release.
+> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/bacb6c534887016f1e875180c38e795cd0ca8f3f/skills), at anfra 0.19.0. Changes go there; this repo is overwritten on each release.
 
 # anfra skills
 
@@ -151,6 +151,7 @@ Develop analytics with Anfra.
 | `anfra-aml` | Write and edit AML models, fields, relationships, and datasets. |
 | `anfra-setup-repo` | Set up a new Anfra repo: `anfra init`, connect a data source, a first model and dataset. |
 | `anfra-build-data-app` | Build a Data App (one HTML file in `apps/`) on the repo's datasets, and check it in `anfra serve`. |
+| `anfra-docs` | Look up the anfra and AMQL docs, for what the other skills don't cover. |
 
 | Agent | What it does |
 |---|---|
@@ -158,7 +159,7 @@ Develop analytics with Anfra.
 
 | Hook | What it does |
 |---|---|
-| Update notice | At session start in an Anfra repo, tells the agent when a newer `anfra` release is out, so it can mention it to you (it won't update anfra unless asked). Reads anfra's own cached daily check; set `ANFRA_NO_UPDATE_NOTIFIER=1` to turn it off. |
+| Update notice | At session start in an Anfra repo, tells the agent when a newer `anfra` release is out, so it can mention it to you (it won't update anfra unless asked). Reads anfra's own cached check, made hourly; set `ANFRA_NO_UPDATE_NOTIFIER=1` to turn it off. |
 | Validate AML | After each `Write`/`Edit` (or Codex `apply_patch`) of an AML file, runs `anfra validate` on it and reports diagnostics. |
 
 More plugins (e.g. for consumers/explorers) may be added to this marketplace over time.

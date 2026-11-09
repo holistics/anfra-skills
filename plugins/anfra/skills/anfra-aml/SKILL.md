@@ -20,11 +20,13 @@ the type definition.**
    properties, types, defaults). Open the one you're working with:
    * `data_model.aml` — models (`TableModel`, `QueryModel`) and their fields (`dimension`, `measure`, `param`), field types, and how to reference fields with `r(...)` / `ref(...)`.
    * `dataset.aml` — datasets: which models + relationships they bundle, plus dataset-level `dimension` and `metric` fields.
-   * `relationship.aml` — relationships between models (`many_to_one`, `one_to_one`) and `rel_config`.
+   * `relationship.aml` — relationships between models and `rel_config`: equality (`many_to_one`, `one_to_one`, with extra `on` keys for a composite key), `range` (a fact row matches the row whose window contains it, such as price bands or SCD Type 2), `many_to_many`, and `where` filters on either side. The `relationship(a.x > b.id, true)` shorthand makes a single-key equality one. Write the others in full, as `RelationshipConfig { rel: RangeRelationship { ... } active: true }`.
    * `persistence.aml` — materializing a query model as a table (full / incremental / external).
    * `pre_aggregate.aml` — pre-aggregated tables for performance.
    * `format.aml` — the `Format` type used by a field's `format` property.
 2. **`references/examples/*.aml`** — complete worked files to pattern-match against: `ecommerce_orders.model.aml` (a model) and `demo_ecommerce.dataset.aml` (a dataset).
+3. **The AML docs**, for what these references don't cover, such as modeling patterns and how
+   joins are generated: look it up with [](../anfra-docs/).
 
 ## Core concepts
 * **Models** define data. A `TableModel` (`type: 'table'`) maps to a table; a `QueryModel` (`type: 'query'`) maps to a SQL query. Each has `dimension`s (attributes), `measure`s (aggregations), and optional `param`s.
@@ -66,4 +68,4 @@ dataset ([](../anfra-write-aql/)).
 * [](../anfra-validate-aql/) — validate AML/AQL before relying on it.
 
 ---
-anfra skills 0.17.0
+anfra skills 0.19.0
