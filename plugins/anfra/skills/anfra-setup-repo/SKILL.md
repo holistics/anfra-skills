@@ -27,14 +27,10 @@ Ask before installing. Reuse a working CLI rather than upgrading it unless the u
 
 ## 2. Create the repo's files
 
-From the repo's folder (an existing Git repo is fine):
+Ask the user whether they're starting a new repo, or joining one their org already publishes.
 
-```sh
-anfra init            # or: anfra init <dir>
-```
-
-It creates what is missing and never changes an existing file beyond adding to it, so it is safe
-to run again:
+`anfra init` sets up the repo's files. It creates what is missing and never changes an existing
+file beyond adding to it, so it is safe to run again:
 
 | Path | What it is |
 |---|---|
@@ -44,6 +40,62 @@ to run again:
 | `models/`, `datasets/`, `apps/` | AML models, AML datasets, Data Apps. |
 | `.gitignore` | Gains `.anfra/data_sources.yml`. |
 | `AGENTS.md` | Gains the anfra block, telling coding agents to use the anfra skills (and `@AGENTS.md` in an existing `CLAUDE.md`). |
+
+### Starting a new repo
+
+Before running `anfra init`, ask the user whether to add the e-commerce sample: 6 models, a
+dataset, a small DuckDB file and a Data App, so they can try anfra without a warehouse of their own.
+Ask first, because init writes `.anfra/data_sources.yml` and never changes it afterwards. Then run
+init once, from the repo's folder (an existing Git repo is fine):
+
+```sh
+anfra init --example   # the user wants the sample; or: anfra init <dir> --example
+anfra init --yes       # they don't; or: anfra init <dir> --yes
+```
+
+With the sample, the repo already queries its DuckDB file: skip step 3 and run `anfra validate`.
+
+### Joining the org's repo
+
+Don't offer the sample: the repo has its own models.
+
+- **If the team shares it through git,** clone it, and run `anfra init --yes` in the clone, which
+  adds what isn't committed. The org's address is committed in `.anfra/config.yml`, so there's
+  nothing to pull, and the committed `.anfra/data_sources.yml.example` names the data sources.
+- **Otherwise,** run `anfra init --yes` in a new folder, then bring the repo's files from the org,
+  as below.
+
+Either way, once the repo's files are here, connect the data source (step 3) and query it (step 5).
+The models are already there, so skip step 4.
+
+#### Without git: pull from the org
+
+`anfra pull` needs the org's address, `https://<server>/o/<org>`. Find it with the user:
+
+1. Run `anfra auth status`. It lists the orgs the user is signed in to on this machine, with their
+   addresses. If one is the org, confirm it with the user.
+2. Otherwise, ask the user to open the org in their browser, and paste the address of any of its
+   pages, such as `https://bi.example.com/o/acme/dashboards/12`. anfra keeps only the org's part.
+3. If the user knows only the server's address, run `anfra auth login https://<server>`. The user
+   chooses the org in the browser, and the login's result gives its address.
+
+Then pull, which saves the address as the repo's org (`org.url` in `.anfra/config.yml`):
+
+```sh
+anfra pull --set-org https://<server>/o/<org>
+```
+
+If it answers that the user isn't signed in, run `anfra auth login https://<server>/o/<org>`. It
+opens the user's browser, where they approve the sign-in, so tell them to look for it. Then pull
+again.
+
+Or ask the user to run `anfra pull` in their own terminal. There, it lists the orgs they're signed
+in to, lets them choose, and offers to sign in to another. Then carry on once they say it's done.
+
+The pull's hints name the data sources the repo uses that `.anfra/data_sources.yml` doesn't have,
+with their types. Add those in step 3.
+
+See [](../anfra-publish/) for pulling and publishing with others.
 
 ## 3. Connect the data source
 
@@ -103,12 +155,15 @@ well-formed, not that the numbers are right.
   [](../anfra-build-data-app/).
 - `anfra ingest`, then `anfra search <words>`, finds models, fields and metrics by meaning.
 - `anfra agent setup` installs these skills into the user's coding agents.
+- `anfra publish` publishes the repo to the user's org, once they ask. A team that shares work
+  through git publishes what it merged to its shared branch: see [](../anfra-publish/).
 
 ## Related skills
 * [](../anfra-aml/) — write the models, relationships and datasets.
 * [](../anfra-run-aql/) — query a dataset.
 * [](../anfra-build-data-app/) — build a Data App on the datasets.
 * [](../anfra-docs/) — look up the anfra and AMQL docs, for what these skills don't cover.
+* [](../anfra-publish/) — publish to an org, and pull what others published.
 
 ---
-anfra skills 0.19.0
+anfra skills 0.20.0

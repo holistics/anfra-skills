@@ -291,4 +291,4 @@ them to reload the app first.
 * [](../anfra-setup-repo/) — set up the repo and its data source first.
 
 ---
-anfra skills 0.19.0
+anfra skills 0.20.0

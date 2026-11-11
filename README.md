@@ -1,4 +1,4 @@
-> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/bacb6c534887016f1e875180c38e795cd0ca8f3f/skills), at anfra 0.19.0. Changes go there; this repo is overwritten on each release.
+> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/1f045c6035c4b6d1d13b5444979d167a5dd37001/skills), at anfra 0.20.0. Changes go there; this repo is overwritten on each release.
 
 # anfra skills
 
@@ -151,6 +151,7 @@ Develop analytics with Anfra.
 | `anfra-aml` | Write and edit AML models, fields, relationships, and datasets. |
 | `anfra-setup-repo` | Set up a new Anfra repo: `anfra init`, connect a data source, a first model and dataset. |
 | `anfra-build-data-app` | Build a Data App (one HTML file in `apps/`) on the repo's datasets, and check it in `anfra serve`. |
+| `anfra-publish` | Publish the repo to its org, and pull what others published to it, resolving conflicts. |
 | `anfra-docs` | Look up the anfra and AMQL docs, for what the other skills don't cover. |
 
 | Agent | What it does |

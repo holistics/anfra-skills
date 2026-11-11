@@ -36,4 +36,4 @@ it with actionable skills such as [](../anfra-write-aql/), [](../anfra-validate-
    [](../anfra-docs/).
 
 ---
-anfra skills 0.19.0
+anfra skills 0.20.0

@@ -20,4 +20,4 @@ Two sites hold the docs, and both can be read as markdown:
 Don't fetch `llms-full.txt`, which is the whole site in one file and too big to read.
 
 ---
-anfra skills 0.19.0
+anfra skills 0.20.0
