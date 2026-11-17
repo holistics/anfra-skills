@@ -63,42 +63,73 @@ arrives as the query's `validation_failed` error, its violation at `input.filter
 ## App
 
 ```js
-const app = Anfra.createApp({ title: 'Sales', timezone: 'Asia/Singapore' }); // both optional
+const app = Anfra.createApp({
+  title: 'Sales',
+  timezone: 'Asia/Singapore',
+  weekStartDay: 'sunday',
+  query: { default: { cache: { duration: '5m' } } },
+}); // all optional
 ```
 
-Omit `timezone` to use anfra's default; set it to an IANA zone to evaluate relative dates and
-date truncation in that zone. An HTML file may create several apps; one
-is almost always right.
+Omit `timezone` to use the repo's default (UTC unless the repo sets one); set it to an IANA zone to
+evaluate relative dates and date truncation in that zone. `weekStartDay` (`monday` to `sunday`) is
+the day weeks start on, for grouping by week, `this week` and the like: omit it for the repo's
+(monday unless the repo sets one). Both are the app's own: read them as `app.timezone` and
+`app.weekStartDay` for the page's own dates, such as a date picker, and change them with
+`app.setTimezone()` and `app.setWeekStartDay()`. To give the queries a different value from the
+page, set `query: { default: { input: { timezone, weekStartDay } } }`, which the queries use over
+the app's own; you rarely need it. An HTML file may create several apps; one is almost always right.
+
+`query.default.cache.duration` lets the app's queries answer from results cached up to that long
+ago, instead of the warehouse: `5m` suits most pages. A query's own `cache.duration` overrides it.
+Without either, the repo's `query.default.cache.duration` in `.anfra/config.yml` applies, if it sets
+one, and otherwise every query runs on the warehouse. A duration is like `30s`, `10m` or `2h`, at
+most `168h`; `0s` runs a query uncached. The reader sees how old the data is in `inspect`, and the
+host's Refresh command reads it again from the warehouse.
 
 | Member | Does |
 | --- | --- |
-| `app.createQuery(name, { dataset, aql, pageSize? })` | Declares a query. Without `pageSize` it is not paged and returns every row. With one (a whole number of at least 1; anything else throws) it returns a page at a time: page further with `fetchMore()`. A pivot query (`rows { }` / `columns { }`) can't be paged, so must not declare one. |
+| `app.createQuery(name, { dataset, aql, pageSize?, cache? })` | Declares a query. Without `pageSize` it is not paged and returns every row. With one (a whole number of at least 1; anything else throws) it returns a page at a time: page further with `fetchMore()`. A pivot query's (`rows { }` / `columns { }`) page is that many rows of its grid, with their cells and the header rows; `fetchMore()` adds the next grid rows without repeating the header rows or a grand total, and `result.meta.pivot` (`rows`, `columns`) says how big the grid is. `cache: { duration }` is how old a cached result it accepts, overriding the app's default: `'0s'` for a query that must always be live. |
 | `app.createFilter(name, decl)` | Declares a filter. See [Filter](#filter). |
 | `app.createDateDrill(name, { default?, label? })` | Declares a date grain switch. See [Date drill](#date-drill). |
-| `app.mapControl(control, query, { field, aggregation? })` | The control conditions `field` of `query`. |
-| `app.mapCrossFilter(fromQuery, toQuery)` | Rows selected in `fromQuery` filter `toQuery`. |
+| `app.mapControl(control, query, { field, aggregation? })` | The control conditions `field` of `query`. Returns the mapping; `mapping.remove()` takes it out. |
+| `app.mapCrossFilter(fromQuery, toQuery)` | Rows selected in `fromQuery` filter `toQuery`. Returns the edge; `edge.remove()` takes it out. |
 | `await app.execute()` | Runs every query whose inputs changed, and every query whose last run failed: it is also the retry. Resolves `{ succeeded, failed }`, never rejects. |
-| `await app.refresh()` | Re-runs every query, whether or not its inputs changed. |
+| `await app.refresh()` | Re-runs every query with its current inputs, whether or not they changed, and a paged query from its first page, on the warehouse rather than from the cache. The host has a Refresh command that does this for the reader, so a page needs no refresh button of its own. |
 | `app.subscribe(fn)` | Calls `fn` on any change in the app or its entities. Returns an unsubscribe. An exception `fn` throws is logged to the console and stops nothing else: the queries and the other listeners carry on. |
-| `app.hasChanges` | A control or the selection changed since the last execute: use for an "Apply" button. |
+| `app.hasChanges` | The next `execute()` has something to apply (a changed control or selection, an edited, new or unlinked query). Use it for an "Apply" button. |
 | `app.selection` / `app.clearSelection()` | The current cross-filter selection. |
 | `app.abort()` | Cancels in-flight queries. |
 
 Names are unique per app across queries and controls.
 
-### Adding queries later
+### Changing the app while it runs
 
-Entities and mappings can be declared at any time, including after `execute()`: the next
-`execute()` runs whatever is new. A query's AQL is fixed once declared, and nothing can be removed,
-so an app whose query changes with the reader's choices (a query builder, a pivot picker) declares
-a **new query** for each new AQL:
+A dynamic app (a chart builder whose reader drags fields, a dashboard builder whose reader adds,
+edits and deletes widgets) can change what it declared at any time, including after `execute()`:
 
-- Give each one a unique name (`run1`, `run2`, …) and render only the latest.
-- `query.abort()` the previous one if it may still be running.
-- Earlier queries keep their last result and stay idle, since `execute()` only re-runs a query
-  whose own inputs changed. A mapping can't be removed, though, so a control mapped onto an old
-  query keeps re-running it. Give each new query its own controls, or start a fresh
-  `Anfra.createApp()` and `abort()` the old app.
+- **Add**: `createQuery`, `createFilter`, `createDateDrill`, `mapControl`, `mapCrossFilter`.
+- **Edit in place**: `query.update({ dataset?, aql?, pageSize?, cache?, sort? })`,
+  `filter.update({ field?, dataset?, type?, options?, label?, default? })`,
+  `dateDrill.update({ label?, default? })`. The entity keeps its name and its edges.
+- **Remove**: `query.remove()`, `filter.remove()`, `dateDrill.remove()` take their edges with them;
+  `mapping.remove()` and `edge.remove()` take one edge. An edge never changes: to change one,
+  remove it and map again.
+
+Nothing runs until the next `app.execute()`, so edit, then call `execute()` once.
+
+A name is an entity's identity and never changes: name what a reader builds with a stable id
+(`widget-7f3a`), and keep the title the reader sees in your own markup.
+
+What to handle:
+
+- `update` is checked as `create…` is, and throws a `ValidationError` without changing anything.
+  Moving a query to another dataset throws while a cross-filter would span two datasets: remove
+  those edges first.
+- A new `aql` or `dataset` clears the query's sort: pass `sort` to keep one.
+- A filter's new `field`, `dataset` or `type` resets its condition and drops loaded options: call
+  `loadOptions()` again, and remap it if its queries should filter another field.
+- A removed object throws on any call: drop it, its `subscribe` and its markup together.
 
 ### Mappings are explicit
 
@@ -115,14 +146,16 @@ a bare dataset metric is an aggregate condition too.
 | Member | Does |
 | --- | --- |
 | `query.state` | `'idle' \| 'executing' \| 'success' \| 'error'` |
-| `query.result` | `{ columns, rows, meta: { numRows, page?, pageSize?, hasMore? }, debug? }` (`page`, `pageSize` and `hasMore` only for a paged query), or `undefined` before success. Kept while re-executing, so you can render stale data under a spinner. For a paged query, `rows` and `numRows` count the pages loaded so far, not the whole result, and `debug` describes the latest page's request. |
+| `query.result` | `{ columns, rows, meta: { numRows, page?, pageSize?, hasMore?, pivot? }, debug? }` (`page`, `pageSize` and `hasMore` only for a paged query, `pivot` only for a paged pivot), or `undefined` before success. Kept while re-executing, so you can render stale data under a spinner. For a paged query, `rows` and `numRows` count the pages loaded so far, not the whole result, and `debug` describes the latest page's request. |
 | `query.error` | The error when `state === 'error'`. |
 | `query.setSort([{ field, direction }])` | Sorts by a result column `name`. `[]` restores the AQL's own sort. Re-run with `execute()`. |
+| `await query.execute({ force? })` | Runs this query alone, with the inputs the app last applied, when its own sort or the timezone changed or its last run failed; with `force`, whatever changed, and a paged query from its first page. Applies none of the reader's pending control or selection changes: `app.execute()` applies those, for every query. Resolves `{ succeeded, failed }`, never rejects. For one block's own refresh or retry. |
 | `query.hasMore` / `await query.fetchMore()` | Appends the next page. Unlike `execute`, `fetchMore` rejects on failure. A query with no `pageSize` has no more pages: `fetchMore` rejects with a `ValidationError`. Each page is a query of its own, and a re-execute starts again from page 1, so sort a paged query down to a unique field, or rows can repeat or go missing between pages. |
 | `query.select(rows, { fields? })` | Sets the app's selection from rows of this query. `fields` (result column aliases) limits which columns become conditions. See [Cross-filtering](#cross-filtering). |
 | `query.selectedRows` | This query's rows that are currently selected, for highlighting. |
 | `await query.export(options?)` | The `export` plugin, where installed: downloads the query's whole result as a file for the reader. See [plugins/export.md](plugins/export.md). |
 | `query.abort()` | Cancels this query's in-flight request. |
+| `query.update(changes)` / `query.remove()` | Edits the query in place, or takes it out with its edges. See [Changing the app while it runs](#changing-the-app-while-it-runs). |
 | `query.subscribe(fn)` | Change listener for just this query. |
 | `query.locate()` | Scrolls to the elements marked `data-anfra-query` with this query's name and shows them for a moment. See [Structure](#structure). |
 
@@ -243,6 +276,7 @@ Read a filter's value back instead of keeping your own copy, which drifts from t
 | `filter.appliedCondition` | The value its queries last ran with; `undefined` before the first `execute()`. |
 | `filter.isDirty` | `condition` differs from `appliedCondition`. |
 | `filter.subscribe(fn)` | Calls `fn` whenever its value changes, by the reader's input or by `setCondition()`/`reset()` from code. Returns an unsubscribe. |
+| `filter.update(changes)` / `filter.remove()` | Edits the filter in place, or takes it out with its mappings. See [Changing the app while it runs](#changing-the-app-while-it-runs). |
 
 For example, highlight the row a filter is focused on by reading `region.condition.values` in the
 render function, and let a row click call `region.setCondition(…)` then `execute()`.

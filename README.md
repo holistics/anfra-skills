@@ -1,4 +1,4 @@
-> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/1f045c6035c4b6d1d13b5444979d167a5dd37001/skills), at anfra 0.20.0. Changes go there; this repo is overwritten on each release.
+> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/be3005b167c5a359da667d030dfa3913663fd1a9/skills), at anfra 0.21.0. Changes go there; this repo is overwritten on each release.
 
 # anfra skills
 
@@ -152,6 +152,7 @@ Develop analytics with Anfra.
 | `anfra-setup-repo` | Set up a new Anfra repo: `anfra init`, connect a data source, a first model and dataset. |
 | `anfra-build-data-app` | Build a Data App (one HTML file in `apps/`) on the repo's datasets, and check it in `anfra serve`. |
 | `anfra-publish` | Publish the repo to its org, and pull what others published to it, resolving conflicts. |
+| `anfra-read-logs` | Read anfra's log to find out why something went wrong: the query cache, a sidecar, a Data App's errors. |
 | `anfra-docs` | Look up the anfra and AMQL docs, for what the other skills don't cover. |
 
 | Agent | What it does |
