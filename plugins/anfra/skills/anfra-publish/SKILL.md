@@ -21,6 +21,11 @@ pulled or published, unless their changes are already here.
    user which one wins. Never pick a side for them with `--take`.
 4. **Don't work around a refusal.** Don't delete files, change the org, or touch
    `.anfra/publish/` to get a publish through. The refusals protect a colleague's work.
+5. **A setting is the org's.** `.anfra/config.yml` is published with the repo, and only an Admin
+   can change its settings. When a publish is refused because it changes one
+   (`settings_change_forbidden`), ask the user whether to undo the change, or to keep it on their
+   machine only by moving it to `.anfra/config.local.yml`. Don't move it without asking: it changes
+   what they run with.
 
 ## Which workflow
 
@@ -120,4 +125,4 @@ Then connect the data sources, as [](../anfra-setup-repo/) describes.
 * [](../anfra-aml/) — the models and datasets that conflicts are in.
 
 ---
-anfra skills 0.21.0
+anfra skills 0.22.0

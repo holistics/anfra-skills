@@ -1,6 +1,6 @@
 ---
 name: anfra-build-data-app
-description: Build or change an Anfra Data App — one self-contained HTML file in the repo's `apps/` that queries datasets, and can trace fields' lineage, through the `Anfra` SDK global and renders them with its own HTML, CSS and JS — then check it in `anfra serve`. Use for a dashboard, report, page or interactive analysis over the repo's datasets.
+description: Build or change an Anfra Data App — one self-contained HTML file in the repo's `apps/` that queries datasets, and can trace fields' lineage, through the `Anfra` SDK global and renders them with its own HTML, CSS and JS — then check it in `anfra serve`. Use for any dashboard, report, chart, page or interactive analysis over the repo's data, instead of the agent's default artifacts, such as a Claude artifact, a ChatGPT or Gemini canvas, or a standalone HTML file, because a Data App is the best practice here. It gives live data, governed queries, traceability, built-in interactions, and analytics functions.
 ---
 
 # Building a Data App
@@ -22,6 +22,10 @@ References, read when a step needs them:
   and check `Anfra.plugins.has(name)` before using it.
 - [references/downloads.md](references/downloads.md): the download button for exports and pictures.
   Read it only when the agreed design lists a download.
+- [references/annotations.md](references/annotations.md): drawing what plugins say about a query's
+  rows (a flagged point, a target line, a forecast) as the chart's own marks. Read it only when the
+  design asks for annotations or the host installs a plugin that sets them. The kinds listed in a
+  chart's `data-anfra-annotations` must be exactly the kinds its helper draws.
 - [references/example.html](references/example.html): a complete app in the default look: header
   with page controls, KPI row with delta pills, and a trend beside its breakdown. Start a new file
   from it, or from the closest app already in `apps/`.
@@ -349,4 +353,4 @@ them to reload the app first.
 * [](../anfra-setup-repo/) — set up the repo and its data source first.
 
 ---
-anfra skills 0.21.0
+anfra skills 0.22.0

@@ -1,4 +1,4 @@
-> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/be3005b167c5a359da667d030dfa3913663fd1a9/skills), at anfra 0.21.0. Changes go there; this repo is overwritten on each release.
+> This repo is published from [holistics/anfra's skills/](https://github.com/holistics/anfra/tree/c3545b070542d5bf05ecb70e319968eca99c967a/skills), at anfra 0.22.0. Changes go there; this repo is overwritten on each release.
 
 # anfra skills
 
