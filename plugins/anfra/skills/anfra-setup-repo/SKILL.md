@@ -173,4 +173,4 @@ never committed or published, and `anfra status` lists what it sets.
 * [](../anfra-publish/) — publish to an org, and pull what others published.
 
 ---
-anfra skills 0.22.0
+anfra skills 0.23.0
