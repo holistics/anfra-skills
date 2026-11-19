@@ -68,4 +68,4 @@ dataset ([](../anfra-write-aql/)).
 * [](../anfra-validate-aql/) — validate AML/AQL before relying on it.
 
 ---
-anfra skills 0.23.0
+anfra skills 0.23.1

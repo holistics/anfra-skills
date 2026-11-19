@@ -125,4 +125,4 @@ Then connect the data sources, as [](../anfra-setup-repo/) describes.
 * [](../anfra-aml/) — the models and datasets that conflicts are in.
 
 ---
-anfra skills 0.23.0
+anfra skills 0.23.1

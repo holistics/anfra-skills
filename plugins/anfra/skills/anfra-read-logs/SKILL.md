@@ -43,4 +43,4 @@ Don't open or grep the log file, and don't ask the user to paste it: read it wit
 * [](../anfra-build-data-app/) — build a Data App, and check it in `anfra serve`.
 
 ---
-anfra skills 0.23.0
+anfra skills 0.23.1
